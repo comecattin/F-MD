@@ -1,4 +1,4 @@
-module initialization
+module initialization_module
     implicit none
     
 contains
@@ -18,4 +18,4 @@ contains
 
     end subroutine initialize
     
-end module initialization
+end module initialization_module
