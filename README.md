@@ -1,2 +1,2 @@
-# F-MD
-Molecular Dynamic using Fortran
+# F-MD, Fortran Molecular Dynamic
+A simple Molecular Dynamic implementation in Fortran.
