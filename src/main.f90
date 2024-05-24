@@ -21,10 +21,12 @@ program md_simulation
     do step = 1, n_steps
         ! Compute the forces
         call compute_forces(positions, forces, n_atoms)
+
+        ! Integrate positions and velocities
     end do
 
     print *, 'Simulation finished'
-    print *, 'Forces' , forces(1:5, :)
+    
 
     
     
