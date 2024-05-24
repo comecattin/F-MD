@@ -1,5 +1,5 @@
 FC = gfortran
-OBJ = initialization.o forces.o integration.o main.o #output.o
+OBJ = initialization.o forces.o integration.o output_module.o  main.o
 
 md_simulation: $(OBJ)
 	$(FC) -o md_simulation $(OBJ)
@@ -16,8 +16,8 @@ forces.o: forces.f90
 integration.o: integration.f90
 	$(FC) -c integration.f90
 
-# output.o: output.f90
-# 	$(FC) -c output.f90
+output_module.o: output_module.f90
+	$(FC) -c output_module.f90
 
 clean:
 	rm -f *.o *.mod md_simulation
