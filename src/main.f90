@@ -1,6 +1,7 @@
 program md_simulation
     use initialization_module, only : initialize
     use forces_module, only : compute_forces
+    use integration_module, only: integrate
     implicit none
 
     ! Define parameters
@@ -23,6 +24,7 @@ program md_simulation
         call compute_forces(positions, forces, n_atoms)
 
         ! Integrate positions and velocities
+        call integrate(positions, velocities, forces, dt, n_atoms)
     end do
 
     print *, 'Simulation finished'
