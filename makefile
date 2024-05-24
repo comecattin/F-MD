@@ -9,12 +9,12 @@ SRCS = $(wildcard $(SRC_DIR)/*.f90)
 OBJS = $(patsubst $(SRC_DIR)/%.f90,$(BIN_DIR)/%.o,$(SRCS))
 
 # Main target
-md_simulation: $(OBJS)
-	$(FC) -o $@ $^
+md_simulation: $(OBJS) | $(BIN_DIR)
+	$(FC) -o $(BIN_DIR)/$@ $(OBJS) -J$(BIN_DIR)
 
 # Rule to compile the object files
 $(BIN_DIR)/%.o: $(SRC_DIR)/%.f90 | $(BIN_DIR)
-	$(FC) -c -o $@ $<
+	$(FC) -c -o $@ $< -J$(BIN_DIR)
 
 # Create the bin directory if it doesn't exist
 $(BIN_DIR):
@@ -23,4 +23,4 @@ $(BIN_DIR):
 
 .PHONY: clean
 clean:
-	rm -rf $(BIN_DIR) md_simulation
+	rm -rf $(BIN_DIR)/*
