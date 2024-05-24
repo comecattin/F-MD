@@ -1,5 +1,6 @@
 program md_simulation
-    use initialization, only : initialize
+    use initialization_module, only : initialize
+    use forces_module, only : compute_forces
     implicit none
 
     ! Define parameters
@@ -10,14 +11,20 @@ program md_simulation
     ! Define position, velocity and forces arrays
     real(8), dimension(n_atoms, 3) :: positions, velocities, forces
 
+    ! Other variables
+    integer :: step
+
     ! Initialize the positions and velocities
     call initialize(positions, velocities, n_atoms)
 
-    print *, 'Initial positions:'
-    print *, positions(1:5, :)
+    ! Perform the molecular dynamics simulation
+    do step = 1, n_steps
+        ! Compute the forces
+        call compute_forces(positions, forces, n_atoms)
+    end do
 
-    print *, 'Initial velocities:'
-    print *, velocities(1:5, :)
+    print *, 'Simulation finished'
+    print *, 'Forces' , forces(1:5, :)
 
     
     
