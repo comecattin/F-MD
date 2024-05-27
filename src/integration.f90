@@ -2,17 +2,26 @@ module integration_module
     implicit none
     
 contains
-    subroutine integrate(pos, vel, frc, dt, n)
+    subroutine integrate(pos, vel, frc, dt, n, box_length)
         real(8), dimension(n, 3), intent(inout) :: pos, vel
         real(8), dimension(n, 3), intent(in) :: frc
-        real(8), intent(in) :: dt
+        real(8), intent(in) :: dt, box_length
         integer, intent(in) :: n
-        integer :: i
+        integer :: i, j
 
-        ! Integrate using velocity verlet
         do i = 1, n
-            pos(i, :) = pos(i, :) + vel(i, :) * dt + 0.5 * frc(i, :) * dt**2
-            vel(i, :) = vel(i, :) + 0.5 * frc(i, :) * dt
+            do j = 1, 3
+                pos(i, j) = pos(i, j) + vel(i, j) * dt + 0.5 * frc(i, j) * dt**2
+                vel(i, j) = vel(i, j) + 0.5 * frc(i, j) * dt
+                
+                ! Apply periodic boundary conditions
+                if (pos(i, j) < 0.0d0) then
+                    pos(i, j) = pos(i, j) + box_length
+                else if (pos(i, j) >= box_length) then
+                    pos(i, j) = pos(i, j) - box_length
+                end if
+
+            end do
         end do
 
     end subroutine integrate
