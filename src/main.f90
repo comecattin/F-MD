@@ -6,13 +6,22 @@ program md_simulation
     implicit none
 
     ! Define parameters
-    integer :: n_atoms, n_steps, step
+    integer :: n_atoms, n_steps, step, num_args
     real(8) :: dt, box_length
-    character(len=100) :: output_file
+    character(len=100) :: input_file, output_file
     logical :: file_exists
 
     ! Define position, velocity and forces arrays
     real(8), allocatable:: positions(:,:), velocities(:,:), forces(:,:)
+
+    num_args = command_argument_count()
+    if (num_args /= 1) then
+        print *, 'Usage: ./md_simulation input_file'
+        stop
+    else
+        call get_command_argument(1, input_file)
+        print *, 'Input file: ', input_file
+    end if
 
     ! Read the input parameters
     open(unit=20, file='input.dat')
