@@ -29,10 +29,10 @@ The file `input.dat` is the input file and contain in the following order:
 - The time step
 - The box length
 
-An example is given in the `example_input.dat` file.
+An example is given in the `examples/example_input.dat` file.
 
 ## Output and plot the trajectories
 
 By default, positions along time steps are outputted in the `trajectories.dat` file.
 
-To plot an animation of the trajectories, run `python plot_trajectories.py` in the `src` directory.
+To plot an animation of the trajectories, run `python plot_trajectories.py` in the directory where the `trajectories.dat` file is written.
