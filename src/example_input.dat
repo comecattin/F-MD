@@ -1,0 +1,4 @@
+50       ! Number of particles
+10000    ! Number of steps
+0.001    ! Time step
+10.0     ! Box length

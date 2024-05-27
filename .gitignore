@@ -31,3 +31,11 @@
 *.out
 *.app
 bin/
+
+# Results
+*.png
+*.gif
+*.mp4
+trajectories.dat
+input.dat
+md_simulation
