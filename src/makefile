@@ -20,5 +20,5 @@ output_module.o: output_module.f90
 	$(FC) -c output_module.f90
 
 clean:
-	rm -f *.o *.mod md_simulation
+	rm -f *.o *.mod md_simulation trajectories.dat
 
