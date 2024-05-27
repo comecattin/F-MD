@@ -1,6 +1,11 @@
 # F-MD, Fortran Molecular Dynamic
+<p align='center'>
+  <img src=https://github.com/comecattin/F-MD/assets/75748278/1d46d2ed-7f07-4c99-9086-a80ddbaf25b5>
+</p>
 
 A simple Molecular Dynamic implementation in Fortran.
+
+Molecules are randomly initialized in a simulation box with Periodic Bondary Condition using minimal image. Lennard-Jones force are then propagated along the time using a Velocity Verlet integrator.
 
 ## Installation
 
