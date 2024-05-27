@@ -6,23 +6,45 @@ program md_simulation
     implicit none
 
     ! Define parameters
-    integer, parameter :: n_atoms = 100
-    integer, parameter :: n_steps = 1000
-    real(8), parameter :: dt = 0.001
-    real(8), parameter :: box_length = 10.0
+    integer :: n_atoms, n_steps, step
+    real(8) :: dt, box_length
     character(len=100) :: output_file
+    logical :: file_exists
 
     ! Define position, velocity and forces arrays
-    real(8), dimension(n_atoms, 3) :: positions, velocities, forces
+    real(8), allocatable:: positions(:,:), velocities(:,:), forces(:,:)
 
-    ! Other variables
-    integer :: step
+    ! Read the input parameters
+    open(unit=20, file='input.dat')
+    read(20, *) n_atoms
+    read(20, *) n_steps
+    read(20, *) dt
+    read(20, *) box_length
+    close(20)
+
+    ! Print the input parameters
+    print *, 'Number of atoms: ', n_atoms
+    print *, 'Number of steps: ', n_steps
+    print *, 'Time step: ', dt
+    print *, 'Box length: ', box_length
+
+    ! Allocate the arrays
+    allocate(positions(3, n_atoms))
+    allocate(velocities(3, n_atoms))
+    allocate(forces(3, n_atoms))
+
 
     ! Initialize the positions and velocities
     call initialize(positions, velocities, n_atoms, box_length)
 
     ! Open the output file
     output_file = 'trajectories.dat'
+    ! Check if the file already exists
+    inquire(file=output_file, exist=file_exists)
+    if (file_exists) then
+        print *, 'The file ', output_file, ' already exists. Removing it.'
+        call system('rm ' //trim(output_file))
+    end if
 
     ! Perform the molecular dynamics simulation
     do step = 1, n_steps
@@ -40,6 +62,9 @@ program md_simulation
     end do
 
     print *, 'Simulation finished'
+
+    ! Deallocate the arrays
+    deallocate(positions, velocities, forces)
     
 
     
