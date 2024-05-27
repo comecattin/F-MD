@@ -28,8 +28,8 @@ def animate(i):
     ax.clear()
     pos = positions[i]
     ax.scatter(pos[:, 0], pos[:, 1], s=10)
-    ax.set_xlim(0, 10)
-    ax.set_ylim(0, 10)
+    ax.set_xlim(-1, 11)
+    ax.set_ylim(-1, 11)
     ax.set_title(f'Time Step: {steps[i]}')
     ax.set_xlabel('X')
     ax.set_ylabel('Y')
@@ -47,6 +47,7 @@ def main():
     # Save the animation
     writer = PillowWriter(fps=24)
     ani.save('particle_trajectories.gif', writer=writer)
+    ani.save('particle_trajectories.mp4', writer='ffmpeg', fps=24)
 
 if __name__ == '__main__':
     main()
