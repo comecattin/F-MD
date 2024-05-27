@@ -36,4 +36,5 @@ bin/
 *.png
 *.gif
 *.mp4
-*.dat
+trajectories.dat
+input.dat
