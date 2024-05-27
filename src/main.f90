@@ -27,7 +27,7 @@ program md_simulation
     ! Perform the molecular dynamics simulation
     do step = 1, n_steps
         ! Compute the forces
-        call compute_forces(positions, forces, n_atoms)
+        call compute_forces(positions, forces, n_atoms, box_length)
 
         ! Integrate positions and velocities
         call integrate(positions, velocities, forces, dt, n_atoms)
