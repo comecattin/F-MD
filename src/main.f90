@@ -9,6 +9,7 @@ program md_simulation
     integer, parameter :: n_atoms = 100
     integer, parameter :: n_steps = 1000
     real(8), parameter :: dt = 0.001
+    real(8), parameter :: box_length = 10.0
     character(len=100) :: output_file
 
     ! Define position, velocity and forces arrays
@@ -18,7 +19,7 @@ program md_simulation
     integer :: step
 
     ! Initialize the positions and velocities
-    call initialize(positions, velocities, n_atoms)
+    call initialize(positions, velocities, n_atoms, box_length)
 
     ! Open the output file
     output_file = 'trajectories.dat'
