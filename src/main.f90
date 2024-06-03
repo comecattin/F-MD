@@ -51,8 +51,9 @@ program md_simulation
     ! Check if the file already exists
     inquire(file=output_file, exist=file_exists)
     if (file_exists) then
-        print *, 'The file ', output_file, ' already exists. Removing it.'
+        print *, 'The file ', output_file, ' already exists. Removing it and the .arc file.'
         call system('rm ' //trim(output_file))
+        call system('rm ' //trim(output_file(1:index(output_file, '.')-1)) // '.arc')
     end if
 
     ! Perform the molecular dynamics simulation

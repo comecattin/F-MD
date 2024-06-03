@@ -36,6 +36,7 @@ bin/
 *.png
 *.gif
 *.mp4
+*.arc
 trajectories.dat
 input.dat
 md_simulation
