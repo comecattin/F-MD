@@ -24,7 +24,7 @@ program md_simulation
     end if
 
     ! Read the input parameters
-    open(unit=20, file='input.dat')
+    open(unit=20, file=input_file)
     read(20, *) n_atoms
     read(20, *) n_steps
     read(20, *) dt
