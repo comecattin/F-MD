@@ -1,6 +1,7 @@
 program md_simulation
     use initialization_module, only : initialize
     use forces_module, only : compute_forces
+    use energies_module, only : compute_energies
     use integration_module, only: integrate
     use output_module, only: output_positions
     implicit none
@@ -65,6 +66,9 @@ program md_simulation
 
         ! Integrate positions and velocities
         call integrate(positions, velocities, forces, dt, n_atoms, box_length)
+
+        ! Compute the energies
+        call compute_energies(positions, velocities, n_atoms)
         
         ! Output the positions
         call output_positions(step, positions, n_atoms, output_file)
