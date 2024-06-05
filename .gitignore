@@ -40,4 +40,5 @@ bin/
 trajectories.dat
 input.dat
 energies.dat
+energies.pdf
 md_simulation
