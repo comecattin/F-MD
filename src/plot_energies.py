@@ -15,6 +15,18 @@ def load_data(filename):
     total_energy = np.array(data[3::4])
     return kinetic_energy, potential_energy, total_energy, step
 
+def plot_energies(kinetic_energy, potential_energy, total_energy, step):
+    """Plot the energies as a function of time."""
+    plt.plot(step, kinetic_energy, label='Kinetic Energy')
+    plt.plot(step, potential_energy, label='Potential Energy')
+    plt.plot(step, total_energy, label='Total Energy')
+    plt.xlabel('Time step')
+    plt.ylabel('Energy')
+    plt.legend()
+    plt.savefig('energies.pdf', bbox_inches='tight', dpi=300)
+    plt.show()
+
 if __name__ == "__main__":
     filename = '/home/ccattin/dev/fortran_MD/src/energies.dat'
     kinetic_energy, potential_energy, total_energy, step = load_data(filename)
+    plot_energies(kinetic_energy, potential_energy, total_energy, step)
