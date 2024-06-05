@@ -1,19 +1,22 @@
 program md_simulation
     use initialization_module, only : initialize
     use forces_module, only : compute_forces
-    use energies_module, only : compute_energies
+    use energies_module
     use integration_module, only: integrate
-    use output_module, only: output_positions
+    use output_module, only: output_positions, output_energies
     implicit none
 
     ! Define parameters
     integer :: n_atoms, n_steps, step, num_args
     real(8) :: dt, box_length
-    character(len=100) :: input_file, output_file
+    character(len=100) :: input_file, output_file, output_file_energies
     logical :: file_exists
 
     ! Define position, velocity and forces arrays
     real(8), allocatable:: positions(:,:), velocities(:,:), forces(:,:)
+
+    ! Kinetic, potential and total energies
+    real(8) :: ke, pe, te
 
     num_args = command_argument_count()
     if (num_args /= 1) then
@@ -49,12 +52,18 @@ program md_simulation
 
     ! Open the output file
     output_file = 'trajectories.dat'
+    output_file_energies = 'energies.dat'
     ! Check if the file already exists
     inquire(file=output_file, exist=file_exists)
     if (file_exists) then
         print *, 'The file ', output_file, ' already exists. Removing it and the .arc file.'
         call system('rm ' //trim(output_file))
         call system('rm ' //trim(output_file(1:index(output_file, '.')-1)) // '.arc')
+    end if
+    inquire(file=output_file_energies, exist=file_exists)
+    if (file_exists) then
+        print *, 'The file ', output_file_energies, ' already exists. Removing it'
+        call system('rm ' //trim(output_file_energies))
     end if
 
     ! Perform the molecular dynamics simulation
@@ -68,10 +77,11 @@ program md_simulation
         call integrate(positions, velocities, forces, dt, n_atoms, box_length)
 
         ! Compute the energies
-        call compute_energies(positions, velocities, n_atoms)
+        call compute_energies(positions, velocities, n_atoms, ke, pe, te)
         
-        ! Output the positions
+        ! Output the positions and the energies
         call output_positions(step, positions, n_atoms, output_file)
+        call output_energies(step, ke, pe, te, output_file_energies)
 
     end do
 
