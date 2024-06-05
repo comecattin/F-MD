@@ -2,16 +2,15 @@ module energies_module
     implicit none
     real(8), parameter :: epsilon = 1.0 ! LJ potential well depth
     real(8), parameter :: sigma = 1.0 ! LJ distance where potential is zero
-    real(8) :: ke, pe
     
 contains 
-    subroutine compute_energies(pos, vel, n)
+    subroutine compute_energies(pos, vel, n, ke, pe, te)
         real(8), dimension(n, 3), intent(in) :: pos, vel
         integer, intent(in) :: n
-        real(8) :: te
+        real(8), intent(out) :: ke, pe, te
 
-        call compute_kinetic_energy(vel, n)
-        call compute_potential_energy(pos, n)
+        call compute_kinetic_energy(vel, n, ke)
+        call compute_potential_energy(pos, n, pe)
         te = ke + pe
 
         print *, "Kinetic energy: ", ke
@@ -19,9 +18,10 @@ contains
         print *, "Total energy: ", te
     end subroutine compute_energies
 
-    subroutine compute_kinetic_energy(vel, n)
+    subroutine compute_kinetic_energy(vel, n, ke)
         real(8), dimension(n, 3), intent(in) :: vel
         integer, intent(in) :: n
+        real(8), intent(out) :: ke
         integer :: i
 
         ke = 0.0
@@ -30,9 +30,10 @@ contains
         end do
     end subroutine compute_kinetic_energy
 
-    subroutine compute_potential_energy(pos, n)
+    subroutine compute_potential_energy(pos, n, pe)
         real(8), dimension(n, 3), intent(in) :: pos
         integer, intent(in) :: n
+        real(8), intent(out) :: pe
         integer :: i, j
         real(8) :: r
 
