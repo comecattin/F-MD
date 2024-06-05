@@ -2,6 +2,7 @@
 """Plot the energies of the system as a function of time."""
 import matplotlib.pyplot as plt
 import numpy as np
+import argparse
 
 def load_data(filename):
     """Load the data from the file."""
@@ -26,7 +27,18 @@ def plot_energies(kinetic_energy, potential_energy, total_energy, step):
     plt.savefig('energies.pdf', bbox_inches='tight', dpi=300)
     plt.show()
 
-if __name__ == "__main__":
-    filename = '/home/ccattin/dev/fortran_MD/src/energies.dat'
-    kinetic_energy, potential_energy, total_energy, step = load_data(filename)
+def main():
+    """Read the filename from the command line and plot the energies."""
+    parser = argparse.ArgumentParser(
+        description='Plot the energies of the system as a function of time.'
+    )
+    parser.add_argument(
+        'filename',
+        help='The name of the file containing the energies.'
+    )
+    args = parser.parse_args()
+    kinetic_energy, potential_energy, total_energy, step = load_data(args.filename)
     plot_energies(kinetic_energy, potential_energy, total_energy, step)
+
+if __name__ == "__main__":
+    main()
