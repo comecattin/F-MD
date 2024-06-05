@@ -41,3 +41,9 @@ An example is given in the `examples/example_input.dat` file.
 By default, positions along time steps are outputted in the `trajectories.dat` file.
 
 To plot an animation of the trajectories, run `python plot_trajectories.py` in the directory where the `trajectories.dat` file is written.
+
+## Output and plot the energies
+
+Kinetic, potential and total energies are by default computed at each time step and saved under the `energies.dat` file.
+
+To plot theses energies along the time, run `python plot_energies.py energies.dat`. An `energies.pdf` file will be written.

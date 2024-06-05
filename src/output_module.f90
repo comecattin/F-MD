@@ -23,5 +23,19 @@ contains
         close(11)
 
     end subroutine output_positions
+
+    subroutine output_energies(step, ek, ep, et, filename)
+        integer, intent(in) :: step
+        real(8), intent(in) :: ek, ep, et
+        character(len=*), intent(in) :: filename
+
+        open(unit=10, file=filename, status='unknown', action='write', position='append')
+        write(10, '(A, I6)') 'Step: ', step
+        write(10, '(A, F10.5)') 'Kinetic Energy: ', ek
+        write(10, '(A, F10.5)') 'Potential Energy: ', ep
+        write(10, '(A, F10.5)') 'Total Energy: ', et
+        close(10)
+
+    end subroutine output_energies
     
 end module output_module
