@@ -80,7 +80,7 @@ program md_simulation
         call integrate(positions, velocities, forces, dt, n_atoms, box_length)
 
         ! Compute the energies
-        call compute_energies(positions, velocities, n_atoms, ke, pe, te)
+        call compute_energies(positions, velocities, charges, n_atoms, ke, pe, te)
         
         ! Output the positions and the energies
         !call output_positions(step, positions, n_atoms, output_file)
