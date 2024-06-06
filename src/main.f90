@@ -1,4 +1,5 @@
 program md_simulation
+    use parser_module, only : read_config
     use initialization_module, only : initialize, initialize_water
     use forces_module, only : compute_forces, compute_forces_water
     use energies_module
@@ -9,7 +10,7 @@ program md_simulation
     ! Define parameters
     integer :: n_atoms, n_steps, step, num_args, max_iter
     real(8) :: dt, box_length, tolerance
-    character(len=100) :: input_file, output_file, output_file_energies
+    character(len=100) :: input_file, output_file, output_file_energies, command
     logical :: file_exists
 
     ! Define position, velocity and forces arrays
@@ -18,32 +19,7 @@ program md_simulation
     ! Kinetic, potential and total energies
     real(8) :: ke, pe, te
 
-    num_args = command_argument_count()
-    if (num_args /= 1) then
-        print *, 'Usage: ./md_simulation input_file'
-        stop
-    else
-        call get_command_argument(1, input_file)
-        print *, 'Input file: ', input_file
-    end if
-
-    ! Read the input parameters
-    open(unit=20, file=input_file)
-    read(20, *) n_atoms
-    read(20, *) n_steps
-    read(20, *) dt
-    read(20, *) box_length
-    read(20, *) tolerance
-    read(20, *) max_iter
-    close(20)
-
-    ! Print the input parameters
-    print *, 'Number of atoms: ', n_atoms
-    print *, 'Number of steps: ', n_steps
-    print *, 'Time step: ', dt
-    print *, 'Box length: ', box_length
-    print *, 'SHAKE Tolerance: ', tolerance
-    print *, 'SHAKE Max iterations: ', max_iter
+    call read_config(input_file, n_atoms, n_steps, dt, box_length, tolerance, max_iter)
 
     ! Allocate the arrays
     allocate(positions(3, n_atoms))

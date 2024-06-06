@@ -1,4 +1,5 @@
 # F-MD, Fortran Molecular Dynamic
+
 <p align='center'>
   <img src=https://github.com/comecattin/F-MD/assets/75748278/1d46d2ed-7f07-4c99-9086-a80ddbaf25b5>
 </p>
@@ -25,16 +26,18 @@ make
 
 ## Run an MD simulation
 
-To run an MD simulation simply run `./md_simulation input.dat` in the `src` directory.
+To run an MD simulation simply run `./md_simulation input.in` in the `src` directory.
 
-The file `input.dat` is the input file and contain in the following order:
+The file `input.in` is the input file and contain:
 
-- The number of particles
-- The number of time steps
-- The time step
-- The box length
+- The number of particles (`n_atoms`, default `30`)
+- The number of time steps (`n_steps`, default `1000`)
+- The time step (`dt`, default `0.001`)
+- The box length (`box_length`, default `10.0`)
+- The tolerance of the SHAKE algorithm for angle and bonds length constraints (`tolerance`, default `1e-6`)
+- The maximum number of iteration for the SHAKE algorithm (`max_iter`, default `100`)
 
-An example is given in the `examples/example_input.dat` file.
+An example is given in the `examples/example_input.in` file.
 
 ## Output and plot the trajectories
 
