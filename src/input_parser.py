@@ -8,7 +8,11 @@ def parse_config(file_name):
 
     with open(file_name, 'r') as f:
         for line in f:
-            key, value = line.strip().split(':')
+            line = line.strip()
+            if not line or line.startswith('#'):
+                continue
+            key, value = line.split(':', 1)
+            value = value.split('#', 1)[0].strip()
             config[key.strip()] = value.strip()
         
     return config
