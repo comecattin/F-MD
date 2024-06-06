@@ -1,5 +1,5 @@
 FC = gfortran
-OBJ = initialization.o forces.o integration.o output_module.o  energies.o main.o
+OBJ = initialization.o forces.o contraints.o integration.o output_module.o  energies.o main.o
 
 md_simulation: $(OBJ)
 	$(FC) -o md_simulation $(OBJ)
@@ -21,6 +21,9 @@ energies.o: energies.f90
 
 output_module.o: output_module.f90
 	$(FC) -c output_module.f90
+
+contraints.o: contraints.f90
+	$(FC) -c contraints.f90
 
 clean:
 	rm -f *.o *.mod md_simulation trajectories.dat
