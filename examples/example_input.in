@@ -1,0 +1,6 @@
+n_atoms : 30
+n_steps : 10000
+dt : 0.001
+box_length : 10.0
+tolerance : 1.0e-6
+max_iter : 100
