@@ -1,6 +1,6 @@
 program md_simulation
     use initialization_module, only : initialize, initialize_water
-    use forces_module, only : compute_forces
+    use forces_module, only : compute_forces, compute_forces_water
     use energies_module
     use integration_module, only: integrate
     use output_module, only: output_positions, output_energies, output_positions_water
@@ -73,7 +73,8 @@ program md_simulation
         print *, 'Step: ', step
 
         ! Compute the forces
-        call compute_forces(positions, forces, n_atoms, box_length)
+        !call compute_forces(positions, forces, n_atoms, box_length)
+        call compute_forces_water(positions, charges, forces, n_atoms, box_length)
 
         ! Integrate positions and velocities
         call integrate(positions, velocities, forces, dt, n_atoms, box_length)
