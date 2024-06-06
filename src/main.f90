@@ -2,13 +2,13 @@ program md_simulation
     use initialization_module, only : initialize, initialize_water
     use forces_module, only : compute_forces, compute_forces_water
     use energies_module
-    use integration_module, only: integrate
+    use integration_module, only: integrate, integrate_constraints
     use output_module, only: output_positions, output_energies, output_positions_water
     implicit none
 
     ! Define parameters
-    integer :: n_atoms, n_steps, step, num_args
-    real(8) :: dt, box_length
+    integer :: n_atoms, n_steps, step, num_args, max_iter
+    real(8) :: dt, box_length, tolerance
     character(len=100) :: input_file, output_file, output_file_energies
     logical :: file_exists
 
@@ -33,6 +33,8 @@ program md_simulation
     read(20, *) n_steps
     read(20, *) dt
     read(20, *) box_length
+    read(20, *) tolerance
+    read(20, *) max_iter
     close(20)
 
     ! Print the input parameters
@@ -40,6 +42,8 @@ program md_simulation
     print *, 'Number of steps: ', n_steps
     print *, 'Time step: ', dt
     print *, 'Box length: ', box_length
+    print *, 'SHAKE Tolerance: ', tolerance
+    print *, 'SHAKE Max iterations: ', max_iter
 
     ! Allocate the arrays
     allocate(positions(3, n_atoms))
@@ -77,7 +81,8 @@ program md_simulation
         call compute_forces_water(positions, charges, forces, n_atoms, box_length)
 
         ! Integrate positions and velocities
-        call integrate(positions, velocities, forces, dt, n_atoms, box_length)
+        !call integrate(positions, velocities, forces, dt, n_atoms, box_length)
+        call integrate_constraints(positions, velocities, forces, dt, n_atoms, box_length, tolerance, max_iter)
 
         ! Compute the energies
         call compute_energies(positions, velocities, charges, n_atoms, ke, pe, te)
