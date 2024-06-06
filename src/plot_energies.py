@@ -9,7 +9,10 @@ def load_data(filename):
     with open(filename, 'r') as f:
         data = f.readlines()
     for i, line in enumerate(data):
-        data[i] = float(line.replace('Step:', '').replace('Kinetic Energy:', '').replace('Potential Energy:', '').replace('Total Energy:', '').replace('\n', '').replace(' ', ''))
+        try:
+            data[i] = float(line.replace('Step:', '').replace('Kinetic Energy:', '').replace('Potential Energy:', '').replace('Total Energy:', '').replace('\n', '').replace(' ', ''))
+        except ValueError:
+            data[i] = None
     step = np.array(data[0::4], dtype=int)
     kinetic_energy = np.array(data[1::4])
     potential_energy = np.array(data[2::4])
