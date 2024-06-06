@@ -29,6 +29,11 @@ contains
         real(8), intent(in) :: box_length
         integer :: i
 
+        if (mod(n, 3) /= 0) then
+            print *, "Error: The number of atoms must be a multiple of 3"
+            stop
+        end if
+
         call random_seed()
 
         pi = 3.141592653589793d0
