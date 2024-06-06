@@ -1,9 +1,9 @@
 program md_simulation
-    use initialization_module, only : initialize
+    use initialization_module, only : initialize, initialize_water
     use forces_module, only : compute_forces
     use energies_module
     use integration_module, only: integrate
-    use output_module, only: output_positions, output_energies
+    use output_module, only: output_positions, output_energies, output_positions_water
     implicit none
 
     ! Define parameters
@@ -13,7 +13,7 @@ program md_simulation
     logical :: file_exists
 
     ! Define position, velocity and forces arrays
-    real(8), allocatable:: positions(:,:), velocities(:,:), forces(:,:)
+    real(8), allocatable:: positions(:,:), velocities(:,:), forces(:,:), charges(:)
 
     ! Kinetic, potential and total energies
     real(8) :: ke, pe, te
@@ -45,10 +45,12 @@ program md_simulation
     allocate(positions(3, n_atoms))
     allocate(velocities(3, n_atoms))
     allocate(forces(3, n_atoms))
+    allocate(charges(n_atoms))
 
 
     ! Initialize the positions and velocities
-    call initialize(positions, velocities, n_atoms, box_length)
+    !call initialize(positions, velocities, n_atoms, box_length)
+    call initialize_water(positions, velocities, charges, n_atoms, box_length)
 
     ! Open the output file
     output_file = 'trajectories.dat'
@@ -80,7 +82,8 @@ program md_simulation
         call compute_energies(positions, velocities, n_atoms, ke, pe, te)
         
         ! Output the positions and the energies
-        call output_positions(step, positions, n_atoms, output_file)
+        !call output_positions(step, positions, n_atoms, output_file)
+        call output_positions_water(step, positions, n_atoms, output_file)
         call output_energies(step, ke, pe, te, output_file_energies)
 
     end do
