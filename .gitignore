@@ -39,6 +39,7 @@ bin/
 *.arc
 trajectories.dat
 input.dat
+input.in
 energies.dat
 energies.pdf
 md_simulation
