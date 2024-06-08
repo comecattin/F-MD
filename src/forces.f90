@@ -1,7 +1,8 @@
 module forces_module
     implicit none
-    real(8), parameter :: epsilon = 1.0 ! LJ potential well depth
-    real(8), parameter :: sigma = 1.0 ! LJ distance where potential is zero
+    real(8), parameter :: epsilon = 0.1554253 ! LJ O-O SPC/Fw
+    real(8), parameter :: sigma = 3.165492    ! LJ O-O SPC/Fw
+    real(8), parameter :: pi = 3.14159265358979323846
     
 contains
 
@@ -66,5 +67,15 @@ contains
         end do
 
     end subroutine compute_forces_water
+
+    subroutine harmonic(r, r_eq, kb, force_harmonic)
+    
+        real(8), intent(in) :: r
+        real(8), intent(in) :: r_eq, kb
+        real(8), intent(out) :: force_harmonic
+
+        force_harmonic = kb * (r - r_eq)
+
+    end subroutine harmonic
 
 end module forces_module
