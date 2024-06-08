@@ -68,6 +68,17 @@ contains
 
     end subroutine compute_forces_water
 
+    subroutine coulomb_yukawa(r, mass, q1, q2, alpha, g, f_yukawa)
+
+        real(8), intent(in) :: r
+        real(8), intent(in) :: q1, q2
+        real(8), intent(in) :: mass, alpha, g
+        real(8), intent(out) :: f_yukawa
+
+        f_yukawa = q1*q2 * exp(-alpha * mass * r) * (alpha * mass * r + 1)/r**2
+
+    end subroutine coulomb_yukawa
+
     subroutine lennard_jones(r, force_lj)
     
         real(8), intent(in) :: r
