@@ -68,6 +68,18 @@ contains
 
     end subroutine compute_forces_water
 
+    subroutine lennard_jones(r, force_lj)
+    
+        real(8), intent(in) :: r
+        real(8) :: r6
+        real(8), intent(out) :: force_lj
+
+        r6 = r**6
+        
+        force_lj = 24.0d0 * epsilon * (2.0d0 * sigma**6 / r6**2 - sigma**12 / r6)
+
+    end subroutine lennard_jones
+
     subroutine harmonic(r, r_eq, kb, force_harmonic)
     
         real(8), intent(in) :: r
