@@ -22,9 +22,9 @@ program md_simulation
     call read_config(input_file, n_atoms, n_steps, dt, box_length, tolerance, max_iter)
 
     ! Allocate the arrays
-    allocate(positions(3, n_atoms))
-    allocate(velocities(3, n_atoms))
-    allocate(forces(3, n_atoms))
+    allocate(positions(n_atoms, 3))
+    allocate(velocities(n_atoms, 3))
+    allocate(forces(n_atoms, 3))
     allocate(charges(n_atoms))
 
 
@@ -48,6 +48,8 @@ program md_simulation
         call system('rm ' //trim(output_file_energies))
     end if
 
+    call output_positions_water(0, positions, n_atoms, output_file)
+
     ! Perform the molecular dynamics simulation
     do step = 1, n_steps
         print *, 'Step: ', step
@@ -57,8 +59,8 @@ program md_simulation
         call compute_forces_water(positions, charges, forces, n_atoms, box_length)
 
         ! Integrate positions and velocities
-        !call integrate(positions, velocities, forces, dt, n_atoms, box_length)
-        call integrate_constraints(positions, velocities, forces, charges, n_atoms, dt, box_length, tolerance, max_iter)
+        call integrate(positions, velocities, forces, dt, n_atoms, box_length)
+        !call integrate_constraints(positions, velocities, forces, charges, n_atoms, dt, box_length, tolerance, max_iter)
 
         ! Compute the energies
         call compute_energies(positions, velocities, charges, n_atoms, ke, pe, te)
