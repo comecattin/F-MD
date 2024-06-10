@@ -63,7 +63,7 @@ program md_simulation
         !call integrate_constraints(positions, velocities, forces, charges, n_atoms, dt, box_length, tolerance, max_iter)
 
         ! Compute the energies
-        call compute_energies(positions, velocities, charges, n_atoms, ke, pe, te)
+        call compute_energies(positions, velocities, charges, n_atoms, box_length, ke, pe, te)
         
         ! Output the positions and the energies
         !call output_positions(step, positions, n_atoms, output_file)
