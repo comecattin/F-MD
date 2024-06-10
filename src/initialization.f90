@@ -52,7 +52,28 @@ contains
         h_charge = 0.417d0
 
 
-
+        do i = 1, n, 3
+            overlap = .true.
+            overlap_i = 0
+            ! Find non-overlapping positions
+            do while (overlap)
+                overlap_i = overlap_i + 1
+                if (overlap_i > 1000) then
+                    print *, "Error: Could not find non-overlapping positions"
+                    stop
+                end if
+                ! First place the oxygen atom
+                call random_number(pos(i, :))
+                pos(i, :) = pos(i, :) * box_length
+                
+                overlap = .false.
+                do j = 1, i-1
+                    if (sqrt(sum((pos(i, :) - pos(j, :))**2)) < 1.5) then
+                        overlap = .true.
+                        exit
+                    end if
+                end do
+            end do
             
             ! Hydrogen atoms relative to the oxygen atom
             pos(i+1 ,1) = pos(i, 1) + oh_distance
