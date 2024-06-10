@@ -14,19 +14,21 @@ contains
         do i = 1, n
             do j = 1, 3
                 pos(i, j) = pos(i, j) + vel(i, j) * dt + 0.5 * frc(i, j) * dt**2
-                vel(i, j) = vel(i, j) + 0.5 * frc(i, j) * dt
-                
-                ! Apply periodic boundary conditions
+
+                ! Apply periodic boundary conditions to position
                 if (pos(i, j) < 0.0d0) then
                     pos(i, j) = pos(i, j) + box_length
                 else if (pos(i, j) >= box_length) then
                     pos(i, j) = pos(i, j) - box_length
                 end if
 
+                ! Update velocity
+                vel(i, j) = vel(i, j) + frc(i, j) * dt
             end do
         end do
 
     end subroutine integrate
+
 
     subroutine integrate_constraints(pos, vel, forces, charges, n, dt, box_length, tolerance, max_iter)
         implicit none
@@ -50,7 +52,7 @@ contains
         pos = pos - box_length * floor(pos / box_length)
 
         ! Apply constraints using SHAKE
-        call shake(pos, old_pos, vel, box_length, n, dt, tolerance, max_iter)
+        !call shake(pos, old_pos, vel, box_length, n, dt, tolerance, max_iter)
 
         ! Compute forces at new positions (not shown here, but call your force calculation subroutine)
         call compute_forces_water(pos, charges, forces, n, box_length)
