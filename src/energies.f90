@@ -42,7 +42,7 @@ contains
         real(8), dimension(n, 3), intent(in) :: pos
         integer, intent(in) :: n
         real(8), intent(out) :: pe
-        real(8) :: harmonic_p_bond, harmonic_p_angle
+        real(8) :: harmonic_p_bond, harmonic_p_angle, lennard_jones_p
         integer :: i, j
         real(8) :: r
 
@@ -71,12 +71,18 @@ contains
         end do
 
         ! Lennard-Jones potential
-        do i = 1, n
-            do j = i + 1, n
-                r = sqrt(sum((pos(i, :) - pos(j, :)) ** 2))
-                pe = pe + 4.0 * epsilon * ((sigma / r) ** 12 - (sigma / r) ** 6)
+        do i = 1, n-4, 3
+            do j = i+3, n, 3
+                dist = position(i, :) - position(j, :)
+                ! Minimum image convention
+                dist = dist - nint(dist / box_length) * box_length
+                r = norm2(dist)
+                call lennard_jones_potential(r, lennard_jones_p)
+                p = p + lennard_jones_p
             end do
         end do
+
+        
     end subroutine compute_potential_energy
 
     subroutine yukawa_potential(r, mass, q1, q2, alpha_param, yukawa_p)
