@@ -112,6 +112,10 @@ contains
         ! Coulomb interactions
         do i = 1, n-1
             do j = i+1, n
+                dist = position(i, :) - position(j, :)
+                ! Minimum image convention
+                dist = dist - nint(dist / box_length) * box_length
+                r = norm2(dist)
                 call coulomb_yukawa(r, 1.0_8, charges(i), charges(j), alpha, f_yukawa)
                 forces(i, :) = forces(i, :) + f_yukawa * dist/r
                 forces(j, :) = forces(j, :) - f_yukawa * dist/r
