@@ -42,11 +42,33 @@ contains
         real(8), dimension(n, 3), intent(in) :: pos
         integer, intent(in) :: n
         real(8), intent(out) :: pe
+        real(8) :: harmonic_p_bond, harmonic_p_angle
         integer :: i, j
         real(8) :: r
 
         pe = 0.0
 
+        ! Intra molecular potential
+        do i = 1, n-1, 3
+            ! Harmonic potential on HOH angle
+            vec1 = position(i+1, :) - position(i, :)
+            vec2 = position(i+2, :) - position(i, :)
+            ! Minimum image convention
+            vec1 = vec1 - nint(vec1 / box_length) * box_length
+            vec2 = vec2 - nint(vec2 / box_length) * box_length
+            cos_theta = dot_product(vec1, vec2) / (norm2(vec1) * norm2(vec2))
+            theta = acos(cos_theta)
+            call harmonic_potential(theta, angle_eq_rad, ka_HOH, harmonic_p_angle)
+            p = p + harmonic_p_angle
+
+            ! Harmonic potential on O-H bond
+            !    O-H1 bond
+            call harmonic_potential(norm2(vec1), r_eq_OH, kb_OH, harmonic_p_bond)
+            p = p + harmonic_p_bond
+            !    O-H2 bond
+            call harmonic_potential(norm2(vec2), r_eq_OH, kb_OH, harmonic_p_bond)
+            p = p + harmonic_p_bond
+        end do
 
         ! Lennard-Jones potential
         do i = 1, n
