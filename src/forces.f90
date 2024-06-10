@@ -6,7 +6,6 @@ module forces_module
     real(8), parameter :: ka_HOH = 75.90               ! kcal.mol-1.rad-2
     real(8), parameter :: kb_OH = 1059.162             ! kcal.mol-1.angstrom-2
     real(8), parameter :: alpha = 1.0
-    real(8), parameter :: g = 1.0
     real(8), parameter :: r_eq_OH = 1.012              ! Angstrom
     real(8), parameter :: angle_eq = 113.24            ! deg
     
@@ -113,7 +112,7 @@ contains
         ! Coulomb interactions
         do i = 1, n-1
             do j = i+1, n
-                call coulomb_yukawa(r, 1.0_8, charges(i), charges(j), alpha, g, f_yukawa)
+                call coulomb_yukawa(r, 1.0_8, charges(i), charges(j), alpha, f_yukawa)
                 forces(i, :) = forces(i, :) + f_yukawa * dist/r
                 forces(j, :) = forces(j, :) - f_yukawa * dist/r
             end do
@@ -121,14 +120,14 @@ contains
 
     end subroutine compute_forces_water
 
-    subroutine coulomb_yukawa(r, mass, q1, q2, alpha, g, f_yukawa)
+    subroutine coulomb_yukawa(r, mass, q1, q2, alpha_param, f_yukawa)
 
         real(8), intent(in) :: r
         real(8), intent(in) :: q1, q2
-        real(8), intent(in) :: mass, alpha, g
+        real(8), intent(in) :: mass, alpha_param
         real(8), intent(out) :: f_yukawa
 
-        f_yukawa = q1*q2 * exp(-alpha * mass * r) * (alpha * mass * r + 1)/r**2
+        f_yukawa = q1*q2 * exp(-alpha_param * mass * r) * (alpha_param * mass * r + 1)/r**2
 
     end subroutine coulomb_yukawa
 
