@@ -68,13 +68,24 @@ contains
 
     end subroutine yukawa_potential
 
-    subroutine lennard_jones(r, lj_p)
+    subroutine lennard_jones_potential(r, lj_p)
     
         real(8), intent(in) :: r
         real(8), intent(out) :: lj_p
 
         lj_p = 4 * epsilon * ((sigma / r)**12 - (sigma / r)**6)
 
-    end subroutine lennard_jones
+    end subroutine lennard_jones_potential
+
+    subroutine harmonic_potential(r, r_eq, kb, harmonic_p)
+    
+        real(8), intent(in) :: r
+        real(8), intent(in) :: r_eq, kb
+        real(8), intent(out) :: harmonic_p
+
+        harmonic_p = 0.5 * kb * (r - r_eq)**2
+
+    end subroutine harmonic_potential
+
     
 end module energies_module
