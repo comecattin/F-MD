@@ -43,7 +43,7 @@ contains
             write(10, '(3F10.5)') pos(i+2, 1), pos(i+2, 2), pos(i+2, 3)
             write(11, *) i, 'O', pos(i, 1), pos(i, 2), pos(i, 3)
             write(11, *) i+1, 'H', pos(i+1, 1), pos(i+1, 2), pos(i+1, 3)
-            write(11, *) i+2, 'H', pos(i+1, 1), pos(i+2, 2), pos(i+2, 3)
+            write(11, *) i+2, 'H', pos(i+2, 1), pos(i+2, 2), pos(i+2, 3)
         end do
         close(10)
         close(11)
