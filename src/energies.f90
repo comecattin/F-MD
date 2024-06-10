@@ -67,5 +67,14 @@ contains
         yukawa_p = - q1*q2 * exp(-alpha_param * mass * r) / r
 
     end subroutine yukawa_potential
+
+    subroutine lennard_jones(r, lj_p)
+    
+        real(8), intent(in) :: r
+        real(8), intent(out) :: lj_p
+
+        lj_p = 4 * epsilon * ((sigma / r)**12 - (sigma / r)**6)
+
+    end subroutine lennard_jones
     
 end module energies_module
