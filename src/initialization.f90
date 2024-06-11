@@ -18,10 +18,10 @@ contains
 
     end subroutine initialize
 
-    subroutine initialize_water(pos, vel, charges, n, box_length)
+    subroutine initialize_water(pos, vel, charges, n, box_length, mass)
         real(8), dimension(n,3), intent(out) :: pos, vel
-        real(8), dimension(n), intent(out) :: charges
-        real(8) :: oh_distance, hoh_angle, o_charge, h_charge
+        real(8), dimension(n), intent(out) :: charges, mass
+        real(8) :: oh_distance, hoh_angle, o_charge, h_charge, o_mass, h_mass
         real(8) :: pi
         real(8) :: x_oxygen, y_oxygen, z_oxygen
         real(8) :: x_h1, y_h1, z_h1, x_h2, y_h2, z_h2
@@ -45,11 +45,13 @@ contains
 
         pi = 3.141592653589793d0
 
-        ! TIP3P water model
+        ! SPC/Fw water model
         oh_distance = 1.012                 ! Angstroms
         hoh_angle = 113.24 * pi / 180.0     ! Radians
-        o_charge = -0.834d0
-        h_charge = 0.417d0
+        o_charge = -0.82
+        h_charge = 0.41
+        o_mass = 15.999
+        h_mass = 1.00784
 
 
         do i = 1, n, 3
@@ -88,12 +90,16 @@ contains
             pos(i+1, :) = mod(pos(i+1, :), box_length)
             pos(i+2, :) = mod(pos(i+2, :), box_length)
 
-
             ! Assign charges to the atoms
             charges(i) = o_charge
             charges(i+1) = h_charge
             charges(i+2) = h_charge
 
+            ! Assign mass to the atoms
+            mass(i) = o_mass
+            mass(i+1) = h_mass
+            mass(i+2) = h_mass
+            
         end do
     end subroutine initialize_water
     
