@@ -10,14 +10,14 @@ module energies_module
     real(8), parameter :: angle_eq = 113.24            ! deg
     
 contains 
-    subroutine compute_energies(pos, vel, charges, n, box_length, ke, pe, te)
+    subroutine compute_energies(pos, vel, mass, charges, n, box_length, ke, pe, te)
         real(8), dimension(n, 3), intent(in) :: pos, vel
-        real(8), dimension(n), intent(in) :: charges
+        real(8), dimension(n), intent(in) :: charges, mass
         integer, intent(in) :: n
         real(8), intent(in) :: box_length
         real(8), intent(out) :: ke, pe, te
 
-        call compute_kinetic_energy(vel, n, ke)
+        call compute_kinetic_energy(vel, mass, n, ke)
         call compute_potential_energy(pos, charges, n, box_length, pe)
         te = ke + pe
 
@@ -26,16 +26,12 @@ contains
         print *, "Total energy: ", te
     end subroutine compute_energies
 
-    subroutine compute_kinetic_energy(vel, n, ke)
+    subroutine compute_kinetic_energy(vel, mass, n, ke)
         real(8), dimension(n, 3), intent(in) :: vel
         integer, intent(in) :: n
-        real(8), dimension(n) :: mass
+        real(8), dimension(n), intent(in) :: mass
         real(8), intent(out) :: ke
         integer :: i
-
-        mass(1::3) = 15.999
-        mass(2::3) = 1.00784
-        mass(3::3) = 1.00784
 
         ke = 0.0
         do i = 1, n
