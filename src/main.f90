@@ -1,9 +1,9 @@
 program md_simulation
     use parser_module, only : read_config
-    use initialization_module, only : initialize, initialize_water
-    use forces_module, only : compute_forces, compute_forces_water
+    use initialization_module, only : initialize_water
+    use forces_module, only : compute_forces
     use energies_module
-    use integration_module, only: integrate, integrate_constraints
+    use integration_module, only: integrate
     use output_module, only: output_positions, output_energies, output_positions_water
     implicit none
 
@@ -30,7 +30,6 @@ program md_simulation
 
 
     ! Initialize the positions and velocities
-    !call initialize(positions, velocities, n_atoms, box_length)
     call initialize_water(positions, velocities, charges, n_atoms, box_length, mass)
 
     ! Open the output file
@@ -56,18 +55,15 @@ program md_simulation
         print *, 'Step: ', step
 
         ! Compute the forces
-        !call compute_forces(positions, forces, n_atoms, box_length)
-        call compute_forces_water(positions, charges, forces, n_atoms, box_length)
+        call compute_forces(positions, charges, forces, n_atoms, box_length)
 
         ! Integrate positions and velocities
         call integrate(positions, velocities, forces, dt, n_atoms, box_length, mass, charges)
-        !call integrate_constraints(positions, velocities, forces, charges, n_atoms, dt, box_length, tolerance, max_iter)
 
         ! Compute the energies
         call compute_energies(positions, velocities, mass, charges, n_atoms, box_length, ke, pe, te)
         
         ! Output the positions and the energies
-        !call output_positions(step, positions, n_atoms, output_file)
         call output_positions_water(step, positions, n_atoms, output_file)
         call output_energies(step, ke, pe, te, output_file_energies)
 
