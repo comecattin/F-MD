@@ -3,7 +3,7 @@ module parser_module
     
 contains
 
-    subroutine read_config(input_file, n_atoms, n_steps, dt, box_length, tolerance, max_iter)
+    subroutine read_config(input_file, n_atoms, n_steps, dt, box_length, stride)
         !
         ! Routine to read the input configuration file
         !
@@ -12,8 +12,8 @@ contains
         integer :: num_args
         character(len=100) :: command
 
-        integer, intent(out) :: n_atoms, n_steps, max_iter
-        real(8), intent(out) :: dt, box_length, tolerance
+        integer, intent(out) :: n_atoms, n_steps, stride
+        real(8), intent(out) :: dt, box_length
 
         ! Check that CLI parameters is correct
         num_args = command_argument_count()
@@ -36,16 +36,14 @@ contains
         read(20, *) n_steps
         read(20, *) dt
         read(20, *) box_length
-        read(20, *) tolerance
-        read(20, *) max_iter
+        read(20, *) stride
         close(20)
 
         print *, 'Number of atoms: ', n_atoms
         print *, 'Number of steps: ', n_steps
         print *, 'Time step: ', dt
         print *, 'Box length: ', box_length
-        print *, 'SHAKE Tolerance: ', tolerance
-        print *, 'SHAKE Max iterations: ', max_iter
+        print *, 'Stride: ', stride
 
         ! Remove the temporary file
         call system('rm parsed_config.tmp')

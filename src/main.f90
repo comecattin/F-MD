@@ -8,8 +8,8 @@ program md_simulation
     implicit none
 
     ! Define parameters
-    integer :: n_atoms, n_steps, step, num_args, max_iter
-    real(8) :: dt, box_length, tolerance
+    integer :: n_atoms, n_steps, step, num_args, stride
+    real(8) :: dt, box_length
     character(len=100) :: input_file, output_file, output_file_energies, command
     logical :: file_exists
 
@@ -19,7 +19,7 @@ program md_simulation
     ! Kinetic, potential and total energies
     real(8) :: ke, pe, te
 
-    call read_config(input_file, n_atoms, n_steps, dt, box_length, tolerance, max_iter)
+    call read_config(input_file, n_atoms, n_steps, dt, box_length, stride)
 
     ! Allocate the arrays
     allocate(positions(n_atoms, 3))
