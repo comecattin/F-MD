@@ -6,7 +6,38 @@
 
 A simple Molecular Dynamic implementation in Fortran.
 
-Molecules are randomly initialized in a simulation box with Periodic Bondary Condition using minimal image. Lennard-Jones force are then propagated along the time using a Velocity Verlet integrator.
+Water molecules are randomly initialized in a simulation box with Periodic Bondary Condition using minimal image. This work relies on the SPC/Fw water model, where interaction potential is described as:
+
+$$V = V^\text{intra} + V^\text{inter}$$
+
+with
+$$
+  V^\text{intra} = \cfrac{k_b}{2}\left[
+    (r_{\text{OH}_1} - r_\text{OH}^\text{eq})^2
+    + (r_{\text{OH}_2} - r_\text{OH}^\text{eq})^2
+    \right]
+    + \cfrac{k_a}{2} (\theta_\text{HOH} - \theta_\text{HOH}^\text{eq})^2
+$$
+
+and
+$$
+  V^\text{inter} = \sum_{ij}^\text{all pairs} \left\{
+    4\epsilon_{ij} \left[
+      \left(\cfrac{\sigma_{ij}}{R_{ij}} \right)^{12} -
+      \left(\cfrac{\sigma_{ij}}{R_{ij}} \right)^{6}
+      \right] -
+      q_i q_j \cfrac{e^{-\alpha m R_{ij}}}{R_{ij}}
+  \right\}
+$$
+
+Parameters are given in the following table:
+|$k_b$|$r_\text{OH}^\text{eq}$ (Å) | $k_a$ | $\theta_\text{HOH}^\text{eq}$ (deg) | $\sigma_\text{OO}$ (Å) | $\epsilon_\text{OO}$ (kcal.mol-1) | $q(\text{O})$ (e) | $q(\text{H})$ (e) |
+|---------|---------|--------|---------|--------|--------|--------|--------|
+| 1059.162 | 1.012 | 75.90 | 113.24 | 3.165492 | 0.1554253 | -0.82 | 0.41 |
+
+- Bonded and angle interactions are modeled by harmonic potentials
+- van der Waals interactions are modeled by a Lennard-Jones potential
+- Coulomb interactions are modeled by a Yukawa potential, *ie.* screened Coulomb potential
 
 ## Installation
 
@@ -34,8 +65,7 @@ The file `input.in` is the input file and contain:
 - The number of time steps (`n_steps`, default `1000`)
 - The time step (`dt`, default `0.001`)
 - The box length (`box_length`, default `10.0`)
-- The tolerance of the SHAKE algorithm for angle and bonds length constraints (`tolerance`, default `1e-6`)
-- The maximum number of iteration for the SHAKE algorithm (`max_iter`, default `100`)
+- Stride, write position, energies and print them every nth step (`stride`, default `1`)
 
 An example is given in the `examples/example_input.in` file.
 
