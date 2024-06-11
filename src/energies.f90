@@ -21,9 +21,6 @@ contains
         call compute_potential_energy(pos, charges, n, box_length, pe)
         te = ke + pe
 
-        print *, "Kinetic energy: ", ke
-        print *, "Potential energy: ", pe
-        print *, "Total energy: ", te
     end subroutine compute_energies
 
     subroutine compute_kinetic_energy(vel, mass, n, ke)

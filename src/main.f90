@@ -52,7 +52,6 @@ program md_simulation
 
     ! Perform the molecular dynamics simulation
     do step = 1, n_steps
-        print *, 'Step: ', step
 
         ! Compute the forces
         call compute_forces(positions, charges, forces, n_atoms, box_length)
@@ -63,9 +62,13 @@ program md_simulation
         ! Compute the energies
         call compute_energies(positions, velocities, mass, charges, n_atoms, box_length, ke, pe, te)
         
-        ! Output the positions and the energies
-        call output_positions_water(step, positions, n_atoms, output_file)
-        call output_energies(step, ke, pe, te, output_file_energies)
+        if (mod(step, stride) .eq. 0) then
+            print *, ''
+            print *, 'Step: ', step
+            ! Output the positions and the energies
+            call output_positions_water(step, positions, n_atoms, output_file)
+            call output_energies(step, ke, pe, te, output_file_energies)
+        end if
 
     end do
 

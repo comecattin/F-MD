@@ -62,6 +62,10 @@ contains
         write(10, '(A, F10.5)') 'Total Energy: ', et
         close(10)
 
+        print *, "Kinetic energy: ", ek
+        print *, "Potential energy: ", ep
+        print *, "Total energy: ", et
+
     end subroutine output_energies
     
 end module output_module
