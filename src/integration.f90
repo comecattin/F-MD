@@ -14,13 +14,12 @@ contains
         real(8), dimension(n, 3):: a, a_new, frc_new
 
         a = frc / spread(mass, 2, size(frc, 2))
-        pos = pos + vel * dt + 0.5 * a * dt*dt
-        ! Periodic bondary conditions
+        vel = vel + 0.5 * dt * a
+        pos = pos + dt * vel
         pos = pos - box_length * floor(pos / box_length)
-        ! New acceleration
         call compute_forces_water(pos, charges, frc_new, n, box_length)
-        a_new = frc_new / spread(mass, 2, size(frc_new,2))
-        vel = vel + 0.5 * (a + a_new) * dt
+        a_new = frc_new / spread(mass, 2, size(frc_new, 2))
+        vel = vel + 0.5 * dt * a_new
 
     end subroutine integrate
 
