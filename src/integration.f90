@@ -4,28 +4,23 @@ module integration_module
     implicit none
     
 contains
-    subroutine integrate(pos, vel, frc, dt, n, box_length)
+    subroutine integrate(pos, vel, frc, dt, n, box_length, mass, charges)
         real(8), dimension(n, 3), intent(inout) :: pos, vel
         real(8), dimension(n, 3), intent(in) :: frc
         real(8), intent(in) :: dt, box_length
         integer, intent(in) :: n
+        real(8), dimension(n), intent(in) :: mass, charges
         integer :: i, j
+        real(8), dimension(n, 3):: a, a_new, frc_new
 
-        do i = 1, n
-            do j = 1, 3
-                pos(i, j) = pos(i, j) + vel(i, j) * dt + 0.5 * frc(i, j) * dt**2
-
-                ! Apply periodic boundary conditions to position
-                if (pos(i, j) < 0.0d0) then
-                    pos(i, j) = pos(i, j) + box_length
-                else if (pos(i, j) >= box_length) then
-                    pos(i, j) = pos(i, j) - box_length
-                end if
-
-                ! Update velocity
-                vel(i, j) = vel(i, j) + frc(i, j) * dt
-            end do
-        end do
+        a = frc / spread(mass, 2, size(frc, 2))
+        pos = pos + vel * dt + 0.5 * a * dt*dt
+        ! Periodic bondary conditions
+        pos = pos - box_length * floor(pos / box_length)
+        ! New acceleration
+        call compute_forces_water(pos, charges, frc_new, n, box_length)
+        a_new = frc_new / spread(mass, 2, size(frc_new,2))
+        vel = vel + 0.5 * (a + a_new) * dt
 
     end subroutine integrate
 
