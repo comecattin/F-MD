@@ -70,7 +70,7 @@ contains
                 
                 overlap = .false.
                 do j = 1, i-1
-                    if (sqrt(sum((pos(i, :) - pos(j, :))**2)) < 1.5) then
+                    if (sqrt(sum((pos(i, :) - pos(j, :))**2)) < 2.5) then
                         overlap = .true.
                         exit
                     end if
