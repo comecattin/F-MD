@@ -25,6 +25,9 @@ contains
         real(8) :: cos_theta, theta
         real(8) :: angle_eq_rad
         logical :: is_OO, is_OH, is_HH
+        real(8), dimension(3) :: pos_o, pos_h1, pos_h2
+        real(8), dimension(3) :: force_o, force_h1, force_h2
+        real(8) :: d_oh1, d_oh2
 
         
         angle_eq_rad = angle_eq * pi / 180.0 ! Rad
@@ -35,6 +38,17 @@ contains
         ! Intra molecular interactions
         do i = 1, n-1, 3
             ! Harmonic potential on HOH angle
+            ! pos_o  = position(i, :)
+            ! pos_h1 = position(i+1, :)
+            ! pos_h2 = position(i+2, :)
+
+            ! call harmonic_angle(pos_o, pos_h1, pos_h2, angle_eq_rad, force_o, force_h1, force_h2, box_length)
+
+            ! forces(i, :) = forces(i, :) - force_o
+            ! forces(i + 1, :) = forces(i + 1, :) - force_h1
+            ! forces(i + 2, :) = forces(i + 2, :) - force_h2
+
+
             vec1 = position(i+1, :) - position(i, :)
             vec2 = position(i+2, :) - position(i, :)
 
@@ -50,18 +64,32 @@ contains
             forces(i, :) = forces(i, :) - force_harmonic_angle * (vec1/norm2(vec1) + vec2/norm2(vec2))
             forces(i + 1, :) = forces(i + 1, :) - force_harmonic_angle * vec1/norm2(vec1)
             forces(i + 2, :) = forces(i + 2, :) - force_harmonic_angle * vec2/norm2(vec2)
+            print *, force_harmonic_angle
+
+
+
 
 
             ! Harmonic potential on O-H bond
             !    O-H1 bond
-            call harmonic(norm2(vec1), r_eq_OH, kb_OH, force_harmonic_bond)
-            forces(i, :) = forces(i, :) + force_harmonic_bond * vec1/norm2(vec1)
-            forces(i + 1, :) = forces(i + 1, :) - force_harmonic_bond * vec1/norm2(vec1)
+            vec1 = pos_o - pos_h1
+            vec1 = minimum_image_convention(vec1, box_length)
+            vec2 = pos_o - pos_h2
+            vec2 = minimum_image_convention(vec2, box_length)
+            d_oh1 = norm2(vec1)
+            d_oh2 = norm2(vec2)
+
+            call harmonic(d_oh1, r_eq_OH, kb_OH, force_harmonic_bond)
+            forces(i, :) = forces(i, :) + force_harmonic_bond * vec1/d_oh1
+            forces(i + 1, :) = forces(i + 1, :) - force_harmonic_bond * vec1/d_oh1
+            
+            
+            
             
             !    O-H2 bond
-            call harmonic(norm2(vec2), r_eq_OH, kb_OH, force_harmonic_bond)
-            forces(i, :) = forces(i, :) + force_harmonic_bond * vec2/norm2(vec2)
-            forces(i + 2, :) = forces(i + 2, :) - force_harmonic_bond * vec2/norm2(vec2)
+            call harmonic(d_oh2, r_eq_OH, kb_OH, force_harmonic_bond)
+            forces(i, :) = forces(i, :) + force_harmonic_bond * vec2/d_oh2
+            forces(i + 2, :) = forces(i + 2, :) - force_harmonic_bond * vec2/d_oh2
             
         end do
 
@@ -122,5 +150,81 @@ contains
         force_harmonic = kb * (r - r_eq)
 
     end subroutine harmonic
+
+    subroutine harmonic_angle(pos_o, pos_h1, pos_h2, angle_eq_rad, force_o, force_h1, force_h2, box_length)
+    
+        real(8), dimension(3), intent(in) :: pos_o, pos_h1, pos_h2
+        real(8), intent(in) :: angle_eq_rad
+        real(8), intent(in) :: box_length
+        real(8), dimension(3), intent(out) :: force_o, force_h1, force_h2
+
+        real(8) :: cos_theta, theta
+        real(8) :: dt
+
+        real(8), dimension(3) :: vec_oh1, vec_oh2, cp_oh2_oh1, cp_oh1_p, cp_oh2_p
+        real(8) :: rp
+        real(8) :: d_oh1, d_oh2
+
+        real(8) :: deddt
+
+        real(8) :: terma, termc
+
+        vec_oh1 = pos_h1 - pos_o
+        vec_oh2 = pos_h2 - pos_o
+
+        vec_oh1 = minimum_image_convention(vec_oh1, box_length)
+        vec_oh2 = minimum_image_convention(vec_oh2, box_length)
+
+        d_oh1 = norm2(vec_oh1)
+        d_oh2 = norm2(vec_oh2)
+
+        cos_theta = dot_product(vec_oh1, vec_oh2) / (d_oh1 * d_oh2)
+        theta = acos(cos_theta)
+
+        dt = theta - angle_eq_rad
+
+        deddt = ka_HOH * dt
+
+        cp_oh2_oh1 = cross_product(vec_oh2, vec_oh1)
+        cp_oh2_oh1 = minimum_image_convention(cp_oh2_oh1, box_length)
+        rp = norm2(cp_oh2_oh1)
+
+        terma = -deddt / (d_oh1*d_oh1*rp)
+        termc =  deddt / (d_oh2*d_oh2*rp)
+
+        cp_oh1_p = cross_product(vec_oh1, cp_oh2_oh1)
+        cp_oh2_p = cross_product(vec_oh2, cp_oh2_oh1)
+
+        cp_oh1_p = minimum_image_convention(cp_oh1_p, box_length)
+        cp_oh2_p = minimum_image_convention(cp_oh2_p, box_length)
+
+        force_h1 = terma * cp_oh1_p
+        force_h2 = termc * cp_oh2_p
+        force_o = -force_h1 - force_h2
+        print *, force_o, force_h1, force_h2
+
+    end subroutine harmonic_angle
+
+    function cross_product(vec1, vec2) result(cross_prod)
+        implicit none
+        real(8), dimension(3), intent(in) :: vec1, vec2
+        real(8), dimension(3) :: cross_prod
+
+        cross_prod(1) = vec1(2) * vec2(3) - vec1(3) * vec2(2)
+        cross_prod(2) = vec1(3) * vec2(1) - vec1(1) * vec2(3)
+        cross_prod(3) = vec1(1) * vec2(2) - vec1(2) * vec2(1)
+    
+    end function cross_product
+
+    function minimum_image_convention(vec, box_length) result(minimum_image)
+        implicit none
+        real(8), dimension(3), intent(in) :: vec
+        real(8), intent(in) :: box_length
+        real(8), dimension(3) :: minimum_image
+
+        minimum_image = vec - nint(vec / box_length) * box_length
+
+    end function minimum_image_convention
+    
 
 end module forces_module
