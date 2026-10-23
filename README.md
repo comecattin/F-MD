@@ -25,7 +25,7 @@ $$
     4\epsilon_{ij} \left[
       \left(\cfrac{\sigma_{ij}}{R_{ij}} \right)^{12} -
       \left(\cfrac{\sigma_{ij}}{R_{ij}} \right)^{6}
-      \right] -
+      \right] +
       q_i q_j \cfrac{e^{-\alpha m R_{ij}}}{R_{ij}}
   \right\}
 $$
@@ -38,6 +38,10 @@ Parameters are given in the following table:
 - Bonded and angle interactions are modeled by harmonic potentials
 - van der Waals interactions are modeled by a Lennard-Jones potential
 - Coulomb interactions are modeled by a Yukawa potential, *ie.* screened Coulomb potential
+
+The Yukawa energy uses the positive prefactor `q_i*q_j`, so like charges repel
+and the forces equal the negative energy gradient. Electrostatic pairs currently
+include atoms within the same molecule as well as atoms in different molecules.
 
 ## Installation
 
@@ -80,3 +84,11 @@ To plot an animation of the trajectories, run `python plot_trajectories.py` in t
 Kinetic, potential and total energies are by default computed at each time step and saved under the `energies.dat` file.
 
 To plot theses energies along the time, run `python plot_energies.py energies.dat`. An `energies.pdf` file will be written.
+
+
+## Physics regression checks
+
+Run `bash tests/run.sh` from the repository root (requires `gfortran`). The checks
+compare forces with numerical energy gradients, test periodic translation and
+zero net internal force, and verify energy conservation and timestep convergence
+for a deterministic two-water simulation. Build files are kept in a temporary directory.

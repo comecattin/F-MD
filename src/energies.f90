@@ -61,6 +61,7 @@ contains
             vec1 = vec1 - nint(vec1 / box_length) * box_length
             vec2 = vec2 - nint(vec2 / box_length) * box_length
             cos_theta = dot_product(vec1, vec2) / (norm2(vec1) * norm2(vec2))
+            cos_theta = max(-1.0d0, min(1.0d0, cos_theta))
             theta = acos(cos_theta)
             call harmonic_potential(theta, angle_eq_rad, ka_HOH, harmonic_p_angle)
             pe = pe + harmonic_p_angle
@@ -109,7 +110,8 @@ contains
         real(8), intent(in) :: mass, alpha_param
         real(8), intent(out) :: yukawa_p
 
-        yukawa_p = - q1*q2 * exp(-alpha_param * mass * r) / r
+        ! Like charges repel; this sign matches the force in coulomb_yukawa.
+        yukawa_p = q1*q2 * exp(-alpha_param * mass * r) / r
 
     end subroutine yukawa_potential
 

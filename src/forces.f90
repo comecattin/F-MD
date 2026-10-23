@@ -19,15 +19,12 @@ contains
         integer, intent(in) :: n
         real(8), intent(in) :: box_length
         integer :: i, j
-        real(8), dimension(3) :: dist, vec1, vec2
+        real(8), dimension(3) :: dist, vec1, vec2, angle_force1, angle_force2
         real(8) :: r, r2, f_yukawa, force_lj, force_harmonic_bond, force_harmonic_angle
         integer :: bond_type
-        real(8) :: cos_theta, theta
+        real(8) :: cos_theta, theta, length1, length2, sin_theta
         real(8) :: angle_eq_rad
         logical :: is_OO, is_OH, is_HH
-        real(8), dimension(3) :: pos_o, pos_h1, pos_h2
-        real(8), dimension(3) :: force_o, force_h1, force_h2
-        real(8) :: d_oh1, d_oh2
 
         
         angle_eq_rad = angle_eq * pi / 180.0 ! Rad
@@ -38,17 +35,6 @@ contains
         ! Intra molecular interactions
         do i = 1, n-1, 3
             ! Harmonic potential on HOH angle
-            ! pos_o  = position(i, :)
-            ! pos_h1 = position(i+1, :)
-            ! pos_h2 = position(i+2, :)
-
-            ! call harmonic_angle(pos_o, pos_h1, pos_h2, angle_eq_rad, force_o, force_h1, force_h2, box_length)
-
-            ! forces(i, :) = forces(i, :) - force_o
-            ! forces(i + 1, :) = forces(i + 1, :) - force_h1
-            ! forces(i + 2, :) = forces(i + 2, :) - force_h2
-
-
             vec1 = position(i+1, :) - position(i, :)
             vec2 = position(i+2, :) - position(i, :)
 
@@ -56,40 +42,37 @@ contains
             vec1 = vec1 - nint(vec1 / box_length) * box_length
             vec2 = vec2 - nint(vec2 / box_length) * box_length
             
-            cos_theta = dot_product(vec1, vec2) / (norm2(vec1) * norm2(vec2))
+            length1 = norm2(vec1)
+            length2 = norm2(vec2)
+            if (min(length1, length2) <= tiny(1.0d0)) error stop 'Zero-length O-H bond'
+            cos_theta = dot_product(vec1, vec2) / (length1 * length2)
+            cos_theta = max(-1.0d0, min(1.0d0, cos_theta))
             theta = acos(cos_theta)
+            sin_theta = sqrt(max(0.0d0, 1.0d0 - cos_theta**2))
+            if (sin_theta <= 1.0d-12) error stop 'Undefined force for collinear H-O-H angle'
             
             call harmonic(theta, angle_eq_rad, ka_HOH, force_harmonic_angle)
 
-            forces(i, :) = forces(i, :) - force_harmonic_angle * (vec1/norm2(vec1) + vec2/norm2(vec2))
-            forces(i + 1, :) = forces(i + 1, :) - force_harmonic_angle * vec1/norm2(vec1)
-            forces(i + 2, :) = forces(i + 2, :) - force_harmonic_angle * vec2/norm2(vec2)
-            print *, force_harmonic_angle
-
-
-
+            ! F = -dV/dtheta * dtheta/dr for V = ka/2 * (theta-theta_eq)**2.
+            angle_force1 = force_harmonic_angle / (length1 * sin_theta) * &
+                (vec2 / length2 - cos_theta * vec1 / length1)
+            angle_force2 = force_harmonic_angle / (length2 * sin_theta) * &
+                (vec1 / length1 - cos_theta * vec2 / length2)
+            forces(i, :) = forces(i, :) - angle_force1 - angle_force2
+            forces(i + 1, :) = forces(i + 1, :) + angle_force1
+            forces(i + 2, :) = forces(i + 2, :) + angle_force2
 
 
             ! Harmonic potential on O-H bond
             !    O-H1 bond
-            vec1 = pos_o - pos_h1
-            vec1 = minimum_image_convention(vec1, box_length)
-            vec2 = pos_o - pos_h2
-            vec2 = minimum_image_convention(vec2, box_length)
-            d_oh1 = norm2(vec1)
-            d_oh2 = norm2(vec2)
-
-            call harmonic(d_oh1, r_eq_OH, kb_OH, force_harmonic_bond)
-            forces(i, :) = forces(i, :) + force_harmonic_bond * vec1/d_oh1
-            forces(i + 1, :) = forces(i + 1, :) - force_harmonic_bond * vec1/d_oh1
-            
-            
-            
+            call harmonic(norm2(vec1), r_eq_OH, kb_OH, force_harmonic_bond)
+            forces(i, :) = forces(i, :) + force_harmonic_bond * vec1/norm2(vec1)
+            forces(i + 1, :) = forces(i + 1, :) - force_harmonic_bond * vec1/norm2(vec1)
             
             !    O-H2 bond
-            call harmonic(d_oh2, r_eq_OH, kb_OH, force_harmonic_bond)
-            forces(i, :) = forces(i, :) + force_harmonic_bond * vec2/d_oh2
-            forces(i + 2, :) = forces(i + 2, :) - force_harmonic_bond * vec2/d_oh2
+            call harmonic(norm2(vec2), r_eq_OH, kb_OH, force_harmonic_bond)
+            forces(i, :) = forces(i, :) + force_harmonic_bond * vec2/norm2(vec2)
+            forces(i + 2, :) = forces(i + 2, :) - force_harmonic_bond * vec2/norm2(vec2)
             
         end do
 
@@ -151,80 +134,90 @@ contains
 
     end subroutine harmonic
 
-    subroutine harmonic_angle(pos_o, pos_h1, pos_h2, angle_eq_rad, force_o, force_h1, force_h2, box_length)
-    
-        real(8), dimension(3), intent(in) :: pos_o, pos_h1, pos_h2
-        real(8), intent(in) :: angle_eq_rad
-        real(8), intent(in) :: box_length
-        real(8), dimension(3), intent(out) :: force_o, force_h1, force_h2
+    subroutine harmonic_angle(dea, n, position, ideal, force)
+        real(8), dimension(n, 3), intent(out) :: dea
+        integer, intent(in) :: n
+        real(8), dimension(n, 3), intent(in) :: position
+        real(8), intent(in) :: ideal
+        real(8), intent(in) :: force
+        real(8) :: xia, yia, zia, xib, yib, zib, xic, yic, zic
+        real(8) :: xab, yab, zab, xcb, ycb, zcb
+        real(8) :: rab2, rcb2
+        real(8) :: xp, yp, zp, rp
+        real(8) :: dot, cosine, angle
+        integer :: i
+        real(8) :: dt, dt2, deddt
+        real(8) :: terma, termc, dedxia, dedyia, dedzia, dedxic, dedyic, dedzic, dedxib, dedyib, dedzib
 
-        real(8) :: cos_theta, theta
-        real(8) :: dt
+        do i = 1, n
+            dea(i, 1) = 0.0d0
+            dea(i, 2) = 0.0d0
+            dea(i, 3) = 0.0d0
+        end do
 
-        real(8), dimension(3) :: vec_oh1, vec_oh2, cp_oh2_oh1, cp_oh1_p, cp_oh2_p
-        real(8) :: rp
-        real(8) :: d_oh1, d_oh2
+        do i = 1, n-1, 3
 
-        real(8) :: deddt
+            xia = position(i+1, 1)
+            yia = position(i+1, 2)
+            zia = position(i+1, 3)
+            xib = position(i, 1)
+            yib = position(i, 2)
+            zib = position(i, 3)
+            xic = position(i+2, 1)
+            yic = position(i+2, 2)
+            zic = position(i+2, 3)
 
-        real(8) :: terma, termc
+            xab = xia - xib
+            yab = yia - yib
+            zab = zia - zib
+            xcb = xic - xib
+            ycb = yic - yib
+            zcb = zic - zib
 
-        vec_oh1 = pos_h1 - pos_o
-        vec_oh2 = pos_h2 - pos_o
+            rab2 = xab*xab + yab*yab + zab*zab
+            rcb2 = xcb*xcb + ycb*ycb + zcb*zcb
 
-        vec_oh1 = minimum_image_convention(vec_oh1, box_length)
-        vec_oh2 = minimum_image_convention(vec_oh2, box_length)
+            xp = ycb*zab - zcb*yab
+            yp = zcb*xab - xcb*zab
+            zp = xcb*yab - ycb*xab
+            rp = sqrt(xp*xp + yp*yp + zp*zp)
 
-        d_oh1 = norm2(vec_oh1)
-        d_oh2 = norm2(vec_oh2)
+            dot = xab*xcb + yab*ycb + zab*zcb
+            cosine = dot / sqrt(rab2 * rcb2)
+            cosine = min(1.0d0, max(-1.0d0, cosine))
+            angle = acos(cosine)
 
-        cos_theta = dot_product(vec_oh1, vec_oh2) / (d_oh1 * d_oh2)
-        theta = acos(cos_theta)
+            dt = angle - ideal
+            dt2 = dt * dt
+            deddt = force * dt * 2.0d0
 
-        dt = theta - angle_eq_rad
+            terma = -deddt / (rab2 * rp)
+            termc =  deddt / (rcb2 * rp)
+            dedxia = terma * (yab*zp-zab*yp)
+            dedyia = terma * (zab*xp-xab*zp)
+            dedzia = terma * (xab*yp-yab*xp)
+            dedxic = termc * (ycb*zp-zcb*yp)
+            dedyic = termc * (zcb*xp-xcb*zp)
+            dedzic = termc * (xcb*yp-ycb*xp)
+            dedxib = -dedxia - dedxic
+            dedyib = -dedyia - dedyic
+            dedzib = -dedzia - dedzic
 
-        deddt = ka_HOH * dt
+            dea(i+1, 1) = dea(i+1, 1) + dedxia
+            dea(i+1, 2) = dea(i+1, 2) + dedyia
+            dea(i+1, 3) = dea(i+1, 3) + dedzia
+            dea(i, 1) = dea(i, 1) + dedxib
+            dea(i, 2) = dea(i, 2) + dedyib
+            dea(i, 3) = dea(i, 3) + dedzib
+            dea(i+2, 1) = dea(i+2, 1) + dedxic
+            dea(i+2, 2) = dea(i+2, 2) + dedyic
+            dea(i+2, 3) = dea(i+2, 3) + dedzic
 
-        cp_oh2_oh1 = cross_product(vec_oh2, vec_oh1)
-        cp_oh2_oh1 = minimum_image_convention(cp_oh2_oh1, box_length)
-        rp = norm2(cp_oh2_oh1)
-
-        terma = -deddt / (d_oh1*d_oh1*rp)
-        termc =  deddt / (d_oh2*d_oh2*rp)
-
-        cp_oh1_p = cross_product(vec_oh1, cp_oh2_oh1)
-        cp_oh2_p = cross_product(vec_oh2, cp_oh2_oh1)
-
-        cp_oh1_p = minimum_image_convention(cp_oh1_p, box_length)
-        cp_oh2_p = minimum_image_convention(cp_oh2_p, box_length)
-
-        force_h1 = terma * cp_oh1_p
-        force_h2 = termc * cp_oh2_p
-        force_o = -force_h1 - force_h2
-        print *, force_o, force_h1, force_h2
+        end do
 
     end subroutine harmonic_angle
 
-    function cross_product(vec1, vec2) result(cross_prod)
-        implicit none
-        real(8), dimension(3), intent(in) :: vec1, vec2
-        real(8), dimension(3) :: cross_prod
 
-        cross_prod(1) = vec1(2) * vec2(3) - vec1(3) * vec2(2)
-        cross_prod(2) = vec1(3) * vec2(1) - vec1(1) * vec2(3)
-        cross_prod(3) = vec1(1) * vec2(2) - vec1(2) * vec2(1)
-    
-    end function cross_product
 
-    function minimum_image_convention(vec, box_length) result(minimum_image)
-        implicit none
-        real(8), dimension(3), intent(in) :: vec
-        real(8), intent(in) :: box_length
-        real(8), dimension(3) :: minimum_image
-
-        minimum_image = vec - nint(vec / box_length) * box_length
-
-    end function minimum_image_convention
-    
 
 end module forces_module
