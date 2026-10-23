@@ -10,7 +10,8 @@ program md_simulation
     ! Define parameters
     integer :: n_atoms, n_steps, step, num_args, stride
     real(8) :: dt, box_length
-    character(len=100) :: input_file, output_file, output_file_energies, command
+    character(len=4096) :: input_file
+    character(len=100) :: output_file, output_file_energies, command
     logical :: file_exists
 
     ! Define position, velocity and forces arrays

@@ -1,0 +1,16 @@
+#!/bin/sh
+set -eu
+# Keep helpers relative to the installation, not the caller's working directory.
+prefix=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
+helpers="$prefix/libexec/f-md"
+python=${FMD_PYTHON:-python3}
+case "$(basename -- "$0")" in
+    md_simulation)
+        export FMD_INPUT_PARSER="$helpers/input_parser.py"
+        export FMD_PYTHON="$python"
+        exec "$helpers/md_simulation" "$@"
+        ;;
+    fmd-plot-energies) exec "$python" "$helpers/plot_energies.py" "$@" ;;
+    fmd-plot-trajectories) exec "$python" "$helpers/plot_trajectories.py" "$@" ;;
+    *) echo 'Unknown F-MD command' >&2; exit 1 ;;
+esac

@@ -85,7 +85,7 @@ cd F-MD
 Create and activate the Python environment with [uv](https://docs.astral.sh/uv/):
 
 ```bash
-uv sync
+uv sync --locked
 source .venv/bin/activate
 ```
 
@@ -97,16 +97,34 @@ Keep the environment active when running the simulator, which calls the Python
 input parser, and when running the plotting scripts. Run `uv sync` again after
 dependency changes. You can also use `uv run python ...` without activating it.
 
-Compile the source with a system installation of `gfortran` and `make`:
+On Debian/Ubuntu, install native prerequisites with
+`sudo apt install gfortran make ffmpeg`. Compile and install from the repository
+root (no administrator privileges needed for this prefix):
 
 ```bash
-cd src
-make
+make -j2
+make install PREFIX="$HOME/.local"
+export PATH="$HOME/.local/bin:$PATH"
 ```
+
+This installs `md_simulation`, `fmd-plot-energies`, and `fmd-plot-trajectories` in
+`PREFIX/bin`, with the executable and Python helpers in `PREFIX/libexec/f-md`.
+Keep the uv environment active, or set `FMD_PYTHON` to the absolute path of its
+Python executable. `DESTDIR` is supported for staged installations. Source-tree
+runs with `cd src` and `./md_simulation input.in` also remain supported.
 
 ## Run an MD simulation
 
-To run an MD simulation simply run `./md_simulation input.in` in the `src` directory.
+Run the installed simulator in the directory where outputs should be written:
+
+```bash
+mkdir -p run
+cd run
+md_simulation ../examples/example_input.in
+```
+
+Input paths may contain spaces. Invalid atom counts, strides, timesteps, and box
+lengths fail before the simulation starts.
 
 The file `input.in` is the input file and contain:
 
@@ -122,16 +140,16 @@ An example is given in the `examples/example_input.in` file.
 
 By default, positions along time steps are outputted in the `trajectories.dat` file.
 
-To plot an animation of the trajectories, run `python plot_trajectories.py` in the directory where the `trajectories.dat` file is written.
+To plot an animation of the trajectories, run `fmd-plot-trajectories` in the directory where the `trajectories.dat` file is written.
 
 ## Output and plot the energies
 
 Kinetic, potential and total energies are by default computed at each time step and saved under the `energies.dat` file.
 
-To plot theses energies along the time, run `python plot_energies.py energies.dat`. An `energies.pdf` file will be written.
+To plot theses energies along the time, run `fmd-plot-energies energies.dat`. An `energies.pdf` file will be written.
 
 On a machine without a display, use
-`MPLBACKEND=Agg python plot_energies.py energies.dat` to save the PDF.
+`MPLBACKEND=Agg fmd-plot-energies energies.dat` to save the PDF.
 
 ## Physics regression checks
 
@@ -142,3 +160,27 @@ for a deterministic two-water simulation. Independent physical unit checks cover
 kinetic energy, electrostatic energies and forces, and both integration half-steps.
 Output checks cover energies too large for fixed-width decimal formatting.
 Build files are kept in a temporary directory.
+
+
+## Installation and code tests
+
+From the repository root, run the same test command used by CI:
+
+```bash
+uv sync --locked
+uv run --locked make test
+```
+
+This runs the Fortran regression checks plus Python tests for configuration
+validation, installation into a temporary prefix, simulations from a different
+working directory, finite output, and plotting. Tests use temporary directories;
+they do not overwrite simulation results. The installed MP4 export check skips
+when FFmpeg is absent locally. To require it as CI does, use:
+
+```bash
+FMD_REQUIRE_FFMPEG=1 uv run --locked make test
+```
+
+GitHub Actions runs on pushes and pull requests with both optimized and
+runtime-checked Fortran builds. It installs native dependencies, syncs `uv.lock`,
+compiles in parallel, and runs the complete suite including GIF/MP4 export.

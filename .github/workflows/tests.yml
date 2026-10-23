@@ -1,0 +1,45 @@
+name: Installation and code tests
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - build: optimized
+            flags: -O2
+          - build: checked
+            flags: -O0 -g -fcheck=all -ffpe-trap=invalid,zero,overflow
+    name: Linux / ${{ matrix.build }}
+    env:
+      FFLAGS: ${{ matrix.flags }}
+      MPLBACKEND: Agg
+      FMD_REQUIRE_FFMPEG: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install compiler and video exporter
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gfortran make ffmpeg
+      - name: Set up uv and Python
+        uses: astral-sh/setup-uv@07a047e608db84b3d8c06cd9a7c7dcc9c355c18e # v10.3.2
+        with:
+          version: '0.8.22'
+          python-version: '3.12'
+          enable-cache: true
+      - name: Install locked Python dependencies
+        run: uv sync --locked
+      - name: Compile in parallel
+        run: make -j2
+      - name: Test physics, installation, parser, and plots
+        run: uv run --locked make test
