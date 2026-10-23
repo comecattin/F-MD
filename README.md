@@ -26,12 +26,12 @@ $$
       \left(\cfrac{\sigma_{ij}}{R_{ij}} \right)^{12} -
       \left(\cfrac{\sigma_{ij}}{R_{ij}} \right)^{6}
       \right] +
-      q_i q_j \cfrac{e^{-\alpha m R_{ij}}}{R_{ij}}
+      C q_i q_j \cfrac{e^{-\alpha R_{ij}}}{R_{ij}}
   \right\}
 $$
 
 Parameters are given in the following table:
-|$k_b$|$r_\text{OH}^\text{eq}$ (Å) | $k_a$ | $\theta_\text{HOH}^\text{eq}$ (deg) | $\sigma_\text{OO}$ (Å) | $\epsilon_\text{OO}$ (kcal.mol-1) | $q(\text{O})$ (e) | $q(\text{H})$ (e) |
+|$k_b$ (kcal mol⁻¹ Å⁻²)|$r_\text{OH}^\text{eq}$ (Å) | $k_a$ (kcal mol⁻¹ rad⁻²) | $\theta_\text{HOH}^\text{eq}$ (deg) | $\sigma_\text{OO}$ (Å) | $\epsilon_\text{OO}$ (kcal.mol-1) | $q(\text{O})$ (e) | $q(\text{H})$ (e) |
 |---------|---------|--------|---------|--------|--------|--------|--------|
 | 1059.162 | 1.012 | 75.90 | 113.24 | 3.165492 | 0.1554253 | -0.82 | 0.41 |
 
@@ -42,6 +42,36 @@ Parameters are given in the following table:
 The Yukawa energy uses the positive prefactor `q_i*q_j`, so like charges repel
 and the forces equal the negative energy gradient. Electrostatic pairs currently
 include atoms within the same molecule as well as atoms in different molecules.
+
+## Units
+
+All inputs and calculations use the following units:
+
+| Quantity | Unit |
+|---|---|
+| Positions, box length, bond lengths | Å |
+| Time and `dt` | ps (1 ps = 1000 fs) |
+| Velocities | Å/ps |
+| Masses | g/mol |
+| Charges | elementary charge, e |
+| Potential, kinetic and total energies | kcal/mol (sum over the simulated system) |
+| Forces | kcal mol⁻¹ Å⁻¹ |
+| Angles in energy/force calculations | radians |
+| Yukawa screening coefficient `alpha` | Å⁻¹ (currently 1.0) |
+
+The shared constants in `src/units.f90` convert force divided by mass to
+acceleration in Å/ps² with a factor of **418.4**. Kinetic energy is therefore
+`sum(m*v²)/(2*418.4)` in kcal/mol. Electrostatic energy is
+`C*q_i*q_j*exp(-alpha*r)/r`, with **C ≈ 332.063713 kcal Å mol⁻¹ e⁻²**,
+derived from [NIST CODATA 2022 constants](https://physics.nist.gov/cuu/pdf/all.pdf).
+The screening multiplier in the Yukawa helper routines is dimensionless; it is
+not an atomic mass and is set to one in the simulation.
+
+These conversions change the dynamics and energy values from earlier versions,
+which omitted them. Existing timestep values are now interpreted as ps. The
+default timestep is `0.0001` ps (0.1 fs); the example uses `0.00001` ps (0.01 fs).
+Check timestep convergence for each simulation. Initial velocity components are
+uniformly distributed between -0.5 and 0.5 Å/ps; they do not specify a temperature.
 
 ## Installation
 
@@ -67,8 +97,8 @@ The file `input.in` is the input file and contain:
 
 - The number of particles (`n_atoms`, default `30`)
 - The number of time steps (`n_steps`, default `1000`)
-- The time step (`dt`, default `0.001`)
-- The box length (`box_length`, default `10.0`)
+- The time step (`dt`, in ps, default `0.0001`)
+- The box length (`box_length`, in Å, default `10.0`)
 - Stride, write position, energies and print them every nth step (`stride`, default `1`)
 
 An example is given in the `examples/example_input.in` file.
@@ -85,10 +115,11 @@ Kinetic, potential and total energies are by default computed at each time step 
 
 To plot theses energies along the time, run `python plot_energies.py energies.dat`. An `energies.pdf` file will be written.
 
-
 ## Physics regression checks
 
 Run `bash tests/run.sh` from the repository root (requires `gfortran`). The checks
 compare forces with numerical energy gradients, test periodic translation and
 zero net internal force, and verify energy conservation and timestep convergence
-for a deterministic two-water simulation. Build files are kept in a temporary directory.
+for a deterministic two-water simulation. Independent physical unit checks cover
+kinetic energy, electrostatic energies and forces, and both integration half-steps.
+Build files are kept in a temporary directory.

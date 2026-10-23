@@ -1,22 +1,25 @@
 FC = gfortran
-OBJ = input_parser.o initialization.o forces.o contraints.o integration.o output_module.o  energies.o main.o
+OBJ = units.o input_parser.o initialization.o forces.o contraints.o integration.o output_module.o  energies.o main.o
 
 md_simulation: $(OBJ)
 	$(FC) -o md_simulation $(OBJ)
 
-main.o: main.f90
+units.o: units.f90
+	$(FC) -c units.f90
+
+main.o: main.f90 input_parser.o initialization.o forces.o integration.o output_module.o energies.o
 	$(FC) -c main.f90
 
 initialization.o: initialization.f90
 	$(FC) -c initialization.f90
 
-forces.o: forces.f90
+forces.o: forces.f90 units.o
 	$(FC) -c forces.f90
 
-integration.o: integration.f90
+integration.o: integration.f90 forces.o units.o
 	$(FC) -c integration.f90
 
-energies.o: energies.f90
+energies.o: energies.f90 units.o
 	$(FC) -c energies.f90
 
 output_module.o: output_module.f90

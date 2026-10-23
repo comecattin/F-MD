@@ -41,8 +41,8 @@ contains
 
         print *, 'Number of atoms: ', n_atoms
         print *, 'Number of steps: ', n_steps
-        print *, 'Time step: ', dt
-        print *, 'Box length: ', box_length
+        print *, 'Time step (ps): ', dt
+        print *, 'Box length (Angstrom): ', box_length
         print *, 'Stride: ', stride
 
         ! Remove the temporary file

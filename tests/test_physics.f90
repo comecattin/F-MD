@@ -50,7 +50,7 @@ program test_physics
     do run = 1, 2
         shifted = pos
         vel = 0.0d0
-        dt = 2.0d-4 / run
+        dt = 5.0d-6 / run ! ps
         call compute_energies(shifted, vel, mass, charges, n, box, ke, pe, initial)
         drift(run) = 0.0d0
         do step = 1, 1000 * run

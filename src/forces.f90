@@ -1,11 +1,12 @@
 module forces_module
+    use units_module, only: coulomb_constant
     implicit none
     real(8), parameter :: pi = 3.14159265358979323846
     real(8), parameter :: epsilon = 0.1554253          ! kcal/mol
     real(8), parameter :: sigma = 3.165492             ! Angstrom 
     real(8), parameter :: ka_HOH = 75.90               ! kcal.mol-1.rad-2
     real(8), parameter :: kb_OH = 1059.162             ! kcal.mol-1.angstrom-2
-    real(8), parameter :: alpha = 1.0
+    real(8), parameter :: alpha = 1.0d0           ! Screening coefficient, Angstrom**-1
     real(8), parameter :: r_eq_OH = 1.012              ! Angstrom
     real(8), parameter :: angle_eq = 113.24            ! deg
     
@@ -104,14 +105,14 @@ contains
 
     end subroutine compute_forces
 
-    subroutine coulomb_yukawa(r, mass, q1, q2, alpha_param, f_yukawa)
+    subroutine coulomb_yukawa(r, screening_scale, q1, q2, alpha_param, f_yukawa)
 
         real(8), intent(in) :: r
         real(8), intent(in) :: q1, q2
-        real(8), intent(in) :: mass, alpha_param
+        real(8), intent(in) :: screening_scale, alpha_param
         real(8), intent(out) :: f_yukawa
 
-        f_yukawa = q1*q2 * exp(-alpha_param * mass * r) * (alpha_param * mass * r + 1)/r**2
+        f_yukawa = coulomb_constant * q1*q2 * exp(-alpha_param * screening_scale * r) * (alpha_param * screening_scale * r + 1)/r**2
 
     end subroutine coulomb_yukawa
 

@@ -1,5 +1,6 @@
 module integration_module
     use forces_module, only: compute_forces
+    use units_module, only: force_to_acceleration
     implicit none
     
 contains
@@ -12,12 +13,12 @@ contains
         integer :: i, j
         real(8), dimension(n, 3):: a, a_new, frc_new
 
-        a = frc / spread(mass, 2, size(frc, 2))
+        a = force_to_acceleration * frc / spread(mass, 2, size(frc, 2))
         vel = vel + 0.5 * dt * a
         pos = pos + dt * vel
         pos = pos - box_length * floor(pos / box_length)
         call compute_forces(pos, charges, frc_new, n, box_length)
-        a_new = frc_new / spread(mass, 2, size(frc_new, 2))
+        a_new = force_to_acceleration * frc_new / spread(mass, 2, size(frc_new, 2))
         vel = vel + 0.5 * dt * a_new
 
     end subroutine integrate

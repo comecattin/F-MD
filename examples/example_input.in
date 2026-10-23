@@ -1,5 +1,5 @@
 n_atoms : 60           # Number of atoms in the system
 n_steps : 100000       # Number of time steps
-dt : 1e-5              # Time step
-box_length : 10.0      # Length of the PBC box
+dt : 1e-5              # Time step in ps (0.01 fs)
+box_length : 10.0      # Length of the PBC box in Angstrom
 stride : 100           # Output information every nth step
