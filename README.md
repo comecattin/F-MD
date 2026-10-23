@@ -122,4 +122,5 @@ compare forces with numerical energy gradients, test periodic translation and
 zero net internal force, and verify energy conservation and timestep convergence
 for a deterministic two-water simulation. Independent physical unit checks cover
 kinetic energy, electrostatic energies and forces, and both integration half-steps.
+Output checks cover energies too large for fixed-width decimal formatting.
 Build files are kept in a temporary directory.

@@ -12,3 +12,6 @@ cd "$build_dir"
     "$repo_dir/src/units.f90" "$repo_dir/src/forces.f90" "$repo_dir/src/energies.f90" \
     "$repo_dir/src/integration.f90" "$repo_dir/tests/test_units.f90" -o test_units
 ./test_units
+"${FC:-gfortran}" -g -fcheck=all -ffpe-trap=invalid,zero,overflow \
+    "$repo_dir/src/output_module.f90" "$repo_dir/tests/test_output.f90" -o test_output
+./test_output
