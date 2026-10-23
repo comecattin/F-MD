@@ -82,7 +82,22 @@ git clone git@github.com:comecattin/F-MD.git
 cd F-MD
 ```
 
-Then compile the source:
+Create and activate the Python environment with [uv](https://docs.astral.sh/uv/):
+
+```bash
+uv sync
+source .venv/bin/activate
+```
+
+Dependencies are declared in `pyproject.toml`; `uv.lock` records the resolved
+versions. The environment includes NumPy and Matplotlib for plotting and Pillow
+for GIF export. Install the `ffmpeg` executable separately for MP4 export (for
+example, `sudo apt install ffmpeg` on Debian/Ubuntu).
+Keep the environment active when running the simulator, which calls the Python
+input parser, and when running the plotting scripts. Run `uv sync` again after
+dependency changes. You can also use `uv run python ...` without activating it.
+
+Compile the source with a system installation of `gfortran` and `make`:
 
 ```bash
 cd src
@@ -114,6 +129,9 @@ To plot an animation of the trajectories, run `python plot_trajectories.py` in t
 Kinetic, potential and total energies are by default computed at each time step and saved under the `energies.dat` file.
 
 To plot theses energies along the time, run `python plot_energies.py energies.dat`. An `energies.pdf` file will be written.
+
+On a machine without a display, use
+`MPLBACKEND=Agg python plot_energies.py energies.dat` to save the PDF.
 
 ## Physics regression checks
 

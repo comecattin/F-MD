@@ -1,0 +1,13 @@
+[project]
+name = "f-md"
+version = "0.0.0"
+description = "Python input parsing and plotting tools for the F-MD Fortran simulator"
+requires-python = ">=3.12,<3.13"
+dependencies = [
+    "numpy>=1.26,<3",
+    "matplotlib>=3.8,<4",
+    "pillow>=10",
+]
+
+[tool.uv]
+package = false
