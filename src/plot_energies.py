@@ -25,7 +25,7 @@ def plot_energies(kinetic_energy, potential_energy, total_energy, step):
     plt.plot(step, potential_energy, label='Potential Energy')
     plt.plot(step, total_energy, label='Total Energy')
     plt.xlabel('Time step')
-    plt.ylabel('Energy')
+    plt.ylabel('Energy (kcal/mol)')
     plt.legend()
     plt.savefig('energies.pdf', bbox_inches='tight', dpi=300)
     plt.show()

@@ -57,9 +57,9 @@ contains
 
         open(unit=10, file=filename, status='unknown', action='write', position='append')
         write(10, '(A, I6)') 'Step: ', step
-        write(10, '(A, F10.5)') 'Kinetic Energy: ', ek
-        write(10, '(A, F10.5)') 'Potential Energy: ', ep
-        write(10, '(A, F10.5)') 'Total Energy: ', et
+        write(10, '(A, ES24.15E3)') 'Kinetic Energy: ', ek
+        write(10, '(A, ES24.15E3)') 'Potential Energy: ', ep
+        write(10, '(A, ES24.15E3)') 'Total Energy: ', et
         close(10)
 
         print *, "Kinetic energy: ", ek

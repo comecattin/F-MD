@@ -25,7 +25,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
     config = parse_config(args.file_name)
 
-    dt = config.get('dt', '0.001')
+    dt = config.get('dt', '0.0001')  # ps (0.1 fs)
     n_steps = config.get('n_steps', '1000')
     n_atoms = config.get('n_atoms', '30')
     box_length = config.get('box_length', '10.0')

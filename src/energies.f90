@@ -1,11 +1,12 @@
 module energies_module
+    use units_module, only: kinetic_to_kcal, coulomb_constant
     implicit none
     real(8), parameter :: pi = 3.14159265358979323846
     real(8), parameter :: epsilon = 0.1554253          ! kcal/mol
     real(8), parameter :: sigma = 3.165492             ! Angstrom 
     real(8), parameter :: ka_HOH = 75.90               ! kcal.mol-1.rad-2
     real(8), parameter :: kb_OH = 1059.162             ! kcal.mol-1.angstrom-2
-    real(8), parameter :: alpha = 1.0
+    real(8), parameter :: alpha = 1.0d0           ! Screening coefficient, Angstrom**-1
     real(8), parameter :: r_eq_OH = 1.012              ! Angstrom
     real(8), parameter :: angle_eq = 113.24            ! deg
     
@@ -32,7 +33,7 @@ contains
 
         ke = 0.0
         do i = 1, n
-            ke = ke + 0.5 * mass(i) * sum(vel(i, :) ** 2)
+            ke = ke + 0.5d0 * kinetic_to_kcal * mass(i) * sum(vel(i, :) ** 2)
         end do
     end subroutine compute_kinetic_energy
 
@@ -61,6 +62,7 @@ contains
             vec1 = vec1 - nint(vec1 / box_length) * box_length
             vec2 = vec2 - nint(vec2 / box_length) * box_length
             cos_theta = dot_product(vec1, vec2) / (norm2(vec1) * norm2(vec2))
+            cos_theta = max(-1.0d0, min(1.0d0, cos_theta))
             theta = acos(cos_theta)
             call harmonic_potential(theta, angle_eq_rad, ka_HOH, harmonic_p_angle)
             pe = pe + harmonic_p_angle
@@ -102,14 +104,15 @@ contains
 
     end subroutine compute_potential_energy
 
-    subroutine yukawa_potential(r, mass, q1, q2, alpha_param, yukawa_p)
+    subroutine yukawa_potential(r, screening_scale, q1, q2, alpha_param, yukawa_p)
         
         real(8), intent(in) :: r
         real(8), intent(in) :: q1, q2
-        real(8), intent(in) :: mass, alpha_param
+        real(8), intent(in) :: screening_scale, alpha_param
         real(8), intent(out) :: yukawa_p
 
-        yukawa_p = - q1*q2 * exp(-alpha_param * mass * r) / r
+        ! Like charges repel; this sign matches the force in coulomb_yukawa.
+        yukawa_p = coulomb_constant * q1*q2 * exp(-alpha_param * screening_scale * r) / r
 
     end subroutine yukawa_potential
 

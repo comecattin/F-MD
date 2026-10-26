@@ -14,7 +14,7 @@ contains
         pos = pos * box_length
 
         call random_number(vel)
-        vel = vel - 0.5 ! Shift the velocities to be between -0.5 and 0.5
+        vel = vel - 0.5 ! Angstrom/ps, uniform between -0.5 and 0.5
 
     end subroutine initialize
 
@@ -39,7 +39,7 @@ contains
 
         call random_seed()
 
-        ! Velocities
+        ! Velocities in Angstrom/ps; this uniform distribution does not set a temperature.
         call random_number(vel)
         vel = vel - 0.5
 
@@ -50,8 +50,8 @@ contains
         hoh_angle = 113.24 * pi / 180.0     ! Radians
         o_charge = -0.82
         h_charge = 0.41
-        o_mass = 15.999
-        h_mass = 1.00784
+        o_mass = 15.999d0 ! g/mol
+        h_mass = 1.00784d0 ! g/mol
 
 
         do i = 1, n, 3
